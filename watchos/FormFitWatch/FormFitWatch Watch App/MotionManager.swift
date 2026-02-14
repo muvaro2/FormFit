@@ -110,8 +110,9 @@ final class MotionManager: ObservableObject {
             //Try so that if there is error, jumps to catch
             //atomically: True writes to a temp file then renames → avoids partially written/corrupted files if something interrupts.
             //encoding: .utf8 makes the file a standard UTF-8 CSV
+            WatchConnectivityManager.shared.transferFile(url)
+            lastSaveMessage = "Sent to phone: \(fname)"
             
-            lastSaveMessage = "Saved \(buffer.count) samples → \(fname)"
             print("CSV saved at: \(url)")
         } catch {
             lastSaveMessage = "Save failed: \(error.localizedDescription)"
