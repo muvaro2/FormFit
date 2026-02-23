@@ -1,5 +1,5 @@
 //
-//  ContentView.swift
+//  DiagnosticsContentView.swift
 //  FormFitWatch Watch App
 //
 //  Created by Saavan Kiran on 10/4/25.
@@ -23,15 +23,17 @@ struct MetricCell: View {
     }
 }
 
-struct ContentView: View {
+struct DiagnosticsContentView: View {
     //Own exactly one MotionManager instance for this view
     @StateObject private var motion = MotionManager()
     //@StateObject pretty much means “this view owns one MotionManager and keeps it alive across SwiftUI redraws.”
     
     // Bind the slider to MotionManager.tickMs but route writes through updateTicks(ms:)
+    /*
     private var tickBinding: Binding<Double> {
         .init(get: {motion.tickMs }, set: { motion.updateTick(ms: $0) })
     }
+    */
     
     var body: some View {
         ScrollView {
@@ -56,13 +58,16 @@ struct ContentView: View {
                 .buttonStyle(.bordered)
                 .controlSize(.mini)
 
+                /* //old slider bar
                 VStack(spacing: 4) {
                     Text("Tick: \(Int(motion.tickMs)) ms")
                         .font(.caption2)
 
                     Slider(value: tickBinding, in: 10...200, step: 10)
                 }
-
+                 */
+                
+                
                 if let msg = motion.lastSaveMessage {
                     Text(msg)
                         .font(.caption2)
@@ -114,5 +119,5 @@ struct ContentView: View {
 }
 
 #Preview {
-    ContentView()
+    DiagnosticsContentView()
 }
