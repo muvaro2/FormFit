@@ -33,3 +33,51 @@ class ConvNet1D(nn.Module):
         out = self.layer2(out)
         out = self.layer3(out)
         return out
+    
+
+#training loop function
+def train(model, train_loader, val_loader, epochs=50):
+    criterion = nn.BCELoss() #measures how wrong the predictions are
+    optimizer = torch.optim.Adam(model.parameters(), lr=1e-3, weight_decay=1e-4) #updates the model's numbers after each run
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
+        optimizer, patience=5, factor=0.5, verbose=True
+    ) #reduces learning rate if the model stalls
+
+    history = {'train': [], 'val': []} #stores the loss so it can be graphed
+    best_val_loss = float('inf')
+
+    for epoch in range(epochs):
+        #Trains the model
+        model.train()
+        train_loss = 0.0
+        for X, y in train_loader:
+            optimizer.zero_grad() #clears previous run's gradients
+
+            #forward and backward passes over the data
+            loss = criterion(model(X), y)
+            loss.backward()
+            torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
+            optimizer.step()
+            train_loss += loss.item()
+
+        #Validates the model
+        model.eval()
+        val_loss = 0.0
+        with torch.no_grad():
+            for X, y in val_loader:
+                val_loss += criterion(model(X), y).item()
+
+        avg_train = train_loss / len(train_loader) #average loss
+        avg_val   = val_loss   / len(val_loader)
+        history['train'].append(avg_train)
+        history['val'].append(avg_val)
+        scheduler.step(avg_val)
+
+        # Saves the best model
+        if avg_val < best_val_loss:
+            best_val_loss = avg_val
+            torch.save(model.state_dict(), 'best_model.pth')
+
+        print(f"Epoch {epoch+1:3d} | Train: {avg_train:.4f} | Val: {avg_val:.4f}")
+
+    return history
