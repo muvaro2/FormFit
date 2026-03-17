@@ -215,11 +215,11 @@ final class MotionManager: ObservableObject {
             let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first! //cant access this directly from watch; must transfer to phone to read via WatchConnectivity
             let url  = docs.appendingPathComponent(fname)
 
-            var csv = "t,timestamp,ax,ay,az,gx,gy,gz,roll,pitch,yaw\n" //header row
+            var csv = "t,ax,ay,az,gx,gy,gz,roll,pitch,yaw\n" //header row
             csv.reserveCapacity(buffer.count * 120) //hints how many characters to pre-allocate to reduce reallocations. 120 is a rough per-row guess; safe to tweak.
 
             for s in buffer {
-                csv +=  "\(s.t),\(s.timestamp),\(s.ax),\(s.ay),\(s.az),\(s.gx),\(s.gy),\(s.gz),\(s.roll),\(s.pitch),\(s.yaw)\n"
+                csv +=  "\(s.t),\(s.ax),\(s.ay),\(s.az),\(s.gx),\(s.gy),\(s.gz),\(s.roll),\(s.pitch),\(s.yaw)\n"
                 //solid readable lines of data that can be processed on phone
             }
 
