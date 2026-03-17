@@ -53,7 +53,7 @@ final class MotionManager: ObservableObject {
     private let accelStillThreshold = 0.03 // g
     private let gyroStillThreshold = 0.20 // rad/s
     
-    private let maxBuffer = 5000 //5000 * 50 = 250000 ms or 250 seconds of data can be buffered
+    private let maxBuffer = 10000 //5000 * 50 = 250000 ms or 250 seconds of data can be buffered
     
     func start() {
         guard motion.isDeviceMotionAvailable else {

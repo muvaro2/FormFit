@@ -11,7 +11,7 @@ import SwiftUI
 struct FormFitWatch_Watch_AppApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            CollectorContentView()
                 .onAppear {
                     WatchConnectivityManager.shared.activate()
                 }
