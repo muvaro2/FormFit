@@ -12,9 +12,14 @@ import WatchKit
 
 struct MotionSample: Identifiable {
     let id = UUID() //Unique id for each data sample
+    
+    // Raw Core Motion timestamps
     let timestamp: TimeInterval
     
-    // Linear acceleration (m/s^2) without gravity
+    // Time since recording
+    let t: TimeInterval
+    
+    // Linear acceleration (g units) without gravity
     let ax, ay, az: Double
     
     // Rotation rate (rad/s)
@@ -47,6 +52,8 @@ final class MotionManager: ObservableObject {
     
     // While arming, we sample but do not append until we "start gun"
     private var isRecording = false
+    private var recordingStartTimestamp: TimeInterval?
+    private var referenceAttitude: CMAttitude?
     
     // Tune thresholds later
     // Note: userAcceleration is in "g" units
@@ -62,22 +69,23 @@ final class MotionManager: ObservableObject {
         }
         motion.deviceMotionUpdateInterval = tickMs / 1000.0 //setting the interval into manager
         isRunning = true
+        recordingStartTimestamp = nil
+        referenceAttitude = nil
         
-        motion.startDeviceMotionUpdates(to: .main) { [weak self] dm, err in guard let self, let m = dm, err == nil else {return} //complicated handler but equivalent of saying “Only proceed if self still exists, a motion reading dm is present (call it m), and there’s no error.”
-            
-            let s = MotionSample(
-                timestamp: m.timestamp,
-                ax: m.userAcceleration.x, ay: m.userAcceleration.y, az: m.userAcceleration.z,
-                gx: m.rotationRate.x, gy: m.rotationRate.y, gz: m.rotationRate.z,
-                roll: m.attitude.roll, pitch: m.attitude.pitch, yaw: m.attitude.yaw
-            )
-            
-            self.latest = s //updates latest
-            self.buffer.append(s) //adds s to buffer
-            if self.buffer.count > self.maxBuffer { //recycles buffer if full
-                self.buffer.removeFirst(self.buffer.count - self.maxBuffer) //yes this is O(n) -> fine for prototyping, we can switch to O(1) somehow later
+        motion.startDeviceMotionUpdates(using: chosenReferenceFrame(), to: .main) { [weak self] dm, err in
+            guard let self, let m = dm, err == nil else { return }
+
+            if self.recordingStartTimestamp == nil {
+                self.recordingStartTimestamp = m.timestamp
             }
-            
+
+            let s = self.makeSample(from: m)
+
+            self.latest = s
+            self.buffer.append(s)
+            if self.buffer.count > self.maxBuffer {
+                self.buffer.removeFirst(self.buffer.count - self.maxBuffer)
+            }
         }
     }
         
@@ -91,11 +99,15 @@ final class MotionManager: ObservableObject {
         isRecording = false
         allowStillnessCheck = false
         stillStartTimestamp = nil
+        recordingStartTimestamp = nil
+        referenceAttitude = nil
     }
     
     func clear() {
         buffer.removeAll()
         latest = nil
+        recordingStartTimestamp = nil
+        referenceAttitude = nil
     }
     
     func armAndStart(prepDelay: Double = 2.5, stillnessSeconds: Double = 0.5) {
@@ -113,6 +125,8 @@ final class MotionManager: ObservableObject {
         isRecording = false
         allowStillnessCheck = false
         stillStartTimestamp = nil
+        recordingStartTimestamp = nil
+        referenceAttitude = nil
         
         motion.deviceMotionUpdateInterval = tickMs / 1000.0
         
@@ -126,16 +140,10 @@ final class MotionManager: ObservableObject {
         prepWorkItem = item
         DispatchQueue.main.asyncAfter(deadline: .now() + prepDelay, execute: item)
         
-        motion.startDeviceMotionUpdates(to: .main) { [weak self] dm, err in
+        motion.startDeviceMotionUpdates(using: chosenReferenceFrame(), to: .main) { [weak self] dm, err in
             guard let self, let m = dm, err == nil else { return }
-            guard self.isRunning else { return }
             
-            let s = MotionSample(
-                timestamp: m.timestamp,
-                ax: m.userAcceleration.x, ay: m.userAcceleration.y, az: m.userAcceleration.z,
-                gx: m.rotationRate.x, gy: m.rotationRate.y, gz: m.rotationRate.z,
-                roll: m.attitude.roll, pitch: m.attitude.pitch, yaw: m.attitude.yaw
-            )
+            let s = self.makeSample(from: m)
             
             self.latest = s
             
@@ -158,13 +166,19 @@ final class MotionManager: ObservableObject {
             if still {
                 if self.stillStartTimestamp == nil { self.stillStartTimestamp = m.timestamp }
                 if let t0 = self.stillStartTimestamp, (m.timestamp - t0) >= stillnessSeconds {
-                    // Start gun
                     WKInterfaceDevice.current().play(.start)
-                    
-                    // Start the dataset at this moment
+
+                    // define time zero + attitude zero at the beep
+                    self.recordingStartTimestamp = m.timestamp
+                    self.referenceAttitude = m.attitude.copy() as? CMAttitude
+
                     self.buffer.removeAll()
+
+                    let startSample = self.makeSample(from: m)
+                    self.latest = startSample
+                    self.buffer.append(startSample)
+
                     self.isRecording = true
-                    
                     self.allowStillnessCheck = false
                     self.stillStartTimestamp = nil
                 }
@@ -201,11 +215,11 @@ final class MotionManager: ObservableObject {
             let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first! //cant access this directly from watch; must transfer to phone to read via WatchConnectivity
             let url  = docs.appendingPathComponent(fname)
 
-            var csv = "ax,ay,az,gx,gy,gz,roll,pitch,yaw\n" //header row
+            var csv = "t,timestamp,ax,ay,az,gx,gy,gz,roll,pitch,yaw\n" //header row
             csv.reserveCapacity(buffer.count * 120) //hints how many characters to pre-allocate to reduce reallocations. 120 is a rough per-row guess; safe to tweak.
 
             for s in buffer {
-                csv +=  "\(s.ax),\(s.ay),\(s.az),\(s.gx),\(s.gy),\(s.gz),\(s.roll),\(s.pitch),\(s.yaw)\n"
+                csv +=  "\(s.t),\(s.timestamp),\(s.ax),\(s.ay),\(s.az),\(s.gx),\(s.gy),\(s.gz),\(s.roll),\(s.pitch),\(s.yaw)\n"
                 //solid readable lines of data that can be processed on phone
             }
 
@@ -222,4 +236,56 @@ final class MotionManager: ObservableObject {
             print("CSV save failed: \(error)")
         }
     }
+    
+    // Helper function that makes the sample
+    private func makeSample(from m: CMDeviceMotion) -> MotionSample {
+        let t0 = recordingStartTimestamp ?? m.timestamp
+        let relativeT = m.timestamp - t0
+        
+        let roll: Double
+        let pitch: Double
+        let yaw: Double
+        
+        if let ref = referenceAttitude {
+            let rel = m.attitude.copy() as! CMAttitude
+            rel.multiply(byInverseOf: ref)
+            roll = rel.roll
+            pitch = rel.pitch
+            yaw = rel.yaw
+        } else {
+            roll = m.attitude.roll
+            pitch = m.attitude.pitch
+            yaw = m.attitude.yaw
+        }
+        
+        return MotionSample(
+            timestamp: m.timestamp,
+            t: relativeT,
+            ax: m.userAcceleration.x,
+            ay: m.userAcceleration.y,
+            az: m.userAcceleration.z,
+            gx: m.rotationRate.x,
+            gy: m.rotationRate.y,
+            gz: m.rotationRate.z,
+            roll: roll,
+            pitch: pitch,
+            yaw: yaw
+        )
+    }
+
+
+    //Checks if arbitrary corrected z vertical is even available
+    private func chosenReferenceFrame() -> CMAttitudeReferenceFrame {
+        let available = CMMotionManager.availableAttitudeReferenceFrames()
+        
+        if available.contains(.xArbitraryCorrectedZVertical) {
+            return .xArbitraryCorrectedZVertical
+        }
+        
+        // Fallback if that frame is unavailable on the current watch
+        return .xArbitraryZVertical
+    }
 }
+
+
+
