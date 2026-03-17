@@ -52,7 +52,12 @@ def split_reps(
     if len(repetition.samples) < MIN_REP_SAMPLES:
         return [repetition]
 
-    dominant = _dominant_axis(values, allowed_axes=["roll", "yaw"])
+    # Prefer roll as the dominant axis, since reps typically form a clear "U"
+    # in roll. Fall back to automatic selection only if roll is flat.
+    if _value_range(values.get("roll", [])) > 0:
+        dominant = "roll"
+    else:
+        dominant = _dominant_axis(values, allowed_axes=["roll", "yaw"])
     axis_values = _smoothed(values[dominant], window=5)
     total_range = _value_range(axis_values)
 
@@ -64,7 +69,10 @@ def split_reps(
     if not peaks or len(valleys) < 2:
         return [repetition]
 
-    min_amplitude = max(0.08, total_range * 0.18)
+    # Require a slightly larger swing between anchors to count as a rep. This
+    # reduces false splits when the curve only has small bumps near the bottom
+    # of a "U" but no real second rep.
+    min_amplitude = max(0.10, total_range * 0.22)
 
     valley_segments = _segments_between_anchors(valleys, peaks, axis_values, min_amplitude)
     peak_segments   = _segments_between_anchors(peaks, valleys, axis_values, min_amplitude)
@@ -94,7 +102,44 @@ def split_reps(
             )
         )
 
-    return result if result else [repetition]
+    if not result:
+        return [repetition]
+
+    # ------------------------------------------------------------------
+    # Post‑merge neighbouring reps that are effectively one smooth "U"
+    # ------------------------------------------------------------------
+    merged: list[Repetition] = [result[0]]
+    # Roll / dominant axis is the main motion; use it for tolerance.
+    ROLL_GAP_THRESHOLD = 0.15   # radians between boundaries
+    TIME_GAP_THRESHOLD = 0.30   # seconds between boundaries
+    AXIS_RANGE_THRESHOLD = 1.0  # minimum total swing on dominant axis to allow merge
+
+    axis_name = dominant if dominant in ("roll", "pitch", "yaw") else "roll"
+
+    for rep in result[1:]:
+        prev = merged[-1]
+        t_gap = rep.samples[0].timestamp - prev.samples[-1].timestamp
+        roll_gap = abs(rep.samples[0].roll - prev.samples[-1].roll)
+
+        # Only even consider merging if the reps are very close in time and
+        # orientation at the boundary.
+        if t_gap <= TIME_GAP_THRESHOLD and roll_gap <= ROLL_GAP_THRESHOLD:
+            combined_samples = prev.samples + rep.samples
+            axis_vals = [getattr(s, axis_name) for s in combined_samples]
+            axis_range = max(axis_vals) - min(axis_vals) if axis_vals else 0.0
+
+            # Additional safeguard: only merge if the overall motion across
+            # the combined reps spans at least ~1 rad on the dominant axis.
+            if axis_range >= AXIS_RANGE_THRESHOLD:
+                merged[-1] = Repetition(
+                    samples=combined_samples,
+                    timestamp=prev.timestamp,
+                )
+                continue
+
+        merged.append(rep)
+
+    return merged
 
 
 # ---------------------------------------------------------------------------
@@ -213,7 +258,8 @@ print(f"Detected {len(reps)} rep(s)")
 for i, r in enumerate(reps):
     t_start = r.samples[0].timestamp
     t_end   = r.samples[-1].timestamp
-    print(f"  Rep {i+1}: timestamp {t_start:.3f} → {t_end:.3f}  ({len(r.samples)} samples)")
+    # Use ASCII arrow for compatibility with Windows console encoding
+    print(f"  Rep {i+1}: timestamp {t_start:.3f} -> {t_end:.3f}  ({len(r.samples)} samples)")
 
 # Palette for rep shading (cycles if more reps than colours)
 REP_COLORS = ["#a8d8ea", "#fecea8", "#b8f0b8", "#f0b8f0", "#f0f0b8"]
