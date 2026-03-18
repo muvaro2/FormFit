@@ -11,7 +11,7 @@ from typing import Optional
 # Constants
 # ---------------------------------------------------------------------------
 
-DEFAULT_SAMPLE_RATE: float = 20.0   # ~20 Hz based on the CSV timestamps
+DEFAULT_SAMPLE_RATE: float = 100.0   # ~100 Hz based on the CSV timestamps
 MIN_REP_SAMPLES: int = 5
 
 # ---------------------------------------------------------------------------
@@ -23,7 +23,7 @@ class Sample:
     roll: float
     pitch: float
     yaw: float
-    timestamp: float  # raw float timestamp from CSV
+    t: float  # raw float t from CSV
 
 
 @dataclass
@@ -32,7 +32,7 @@ class Repetition:
     range_of_motion: Optional[float] = None
     concentric_time: Optional[float] = None
     eccentric_time: Optional[float] = None
-    timestamp: datetime = field(default_factory=datetime.now)
+    t: datetime = field(default_factory=datetime.now)
 
 
 # ---------------------------------------------------------------------------
@@ -52,12 +52,9 @@ def split_reps(
     if len(repetition.samples) < MIN_REP_SAMPLES:
         return [repetition]
 
-    # Prefer roll as the dominant axis, since reps typically form a clear "U"
-    # in roll. Fall back to automatic selection only if roll is flat.
-    if _value_range(values.get("roll", [])) > 0:
-        dominant = "roll"
-    else:
-        dominant = _dominant_axis(values, allowed_axes=["roll", "yaw"])
+    # Always detect reps on roll as the dominant axis. Reps are assumed to be
+    # "U" shaped curves in roll, so we hard‑code detection on its minima.
+    dominant = "roll"
     axis_values = _smoothed(values[dominant], window=5)
     total_range = _value_range(axis_values)
 
@@ -69,15 +66,16 @@ def split_reps(
     if not peaks or len(valleys) < 2:
         return [repetition]
 
-    # Require a slightly larger swing between anchors to count as a rep. This
-    # reduces false splits when the curve only has small bumps near the bottom
-    # of a "U" but no real second rep.
-    min_amplitude = max(0.10, total_range * 0.22)
+    # Require a meaningful swing between anchors to count as a rep, but keep
+    # the threshold low enough that smaller warm‑up reps are still detected.
+    # This was previously a bit too strict and could drop the very first rep.
+    min_amplitude = max(0.07, total_range * 0.18)
 
-    valley_segments = _segments_between_anchors(valleys, peaks, axis_values, min_amplitude)
-    peak_segments   = _segments_between_anchors(peaks, valleys, axis_values, min_amplitude)
-
-    selected = valley_segments if len(valley_segments) >= len(peak_segments) else peak_segments
+    # Build reps strictly around minima in roll: each rep is a "U" where the
+    # valley is in the middle and peaks are on either side. Concretely, we
+    # form segments between successive peaks that contain a valley.
+    valley_segments = _segments_between_anchors(peaks, valleys, axis_values, min_amplitude)
+    selected = valley_segments
 
     if not selected:
         return [repetition]
@@ -98,44 +96,54 @@ def split_reps(
         result.append(
             Repetition(
                 samples=samples,
-                timestamp=repetition.timestamp + timedelta(seconds=dt),
+                t=repetition.t + timedelta(seconds=dt),
             )
         )
 
+    # If no valid segments, fall back to a single unsplit repetition.
     if not result:
         return [repetition]
 
     # ------------------------------------------------------------------
-    # Post‑merge neighbouring reps that are effectively one smooth "U"
+    # Post‑merge neighbouring reps only when a boundary looks like a tiny
+    # over‑segmentation (e.g. a single physical rep being cut in half), not
+    # when it separates two distinct reps.
     # ------------------------------------------------------------------
     merged: list[Repetition] = [result[0]]
-    # Roll / dominant axis is the main motion; use it for tolerance.
-    ROLL_GAP_THRESHOLD = 0.15   # radians between boundaries
-    TIME_GAP_THRESHOLD = 0.30   # seconds between boundaries
-    AXIS_RANGE_THRESHOLD = 1.0  # minimum total swing on dominant axis to allow merge
 
-    axis_name = dominant if dominant in ("roll", "pitch", "yaw") else "roll"
+    # We work purely on roll here because detection is hard‑coded to roll.
+    # Crucially, we only merge when the time gap between reps is *very* small,
+    # which happens when our segmentation created two pieces around the same
+    # physical valley/peak. True neighbouring reps have a noticeably larger
+    # time gap between them.
+    ROLL_GAP_THRESHOLD = 0.30   # radians between boundaries (still require similarity)
+    TIME_GAP_THRESHOLD = 0.05   # seconds between boundaries (essentially same instant)
+    # Only merge when we are far away from the neutral/zero roll position.
+    # True rep boundaries tend to pass near roll ~= 0, while mid‑rep splits
+    # happen down in the valley where roll is strongly negative.
+    ROLL_CENTER_THRESHOLD = 0.4  # radians
 
     for rep in result[1:]:
         prev = merged[-1]
-        t_gap = rep.samples[0].timestamp - prev.samples[-1].timestamp
+        t_gap = rep.samples[0].t - prev.samples[-1].t
         roll_gap = abs(rep.samples[0].roll - prev.samples[-1].roll)
 
-        # Only even consider merging if the reps are very close in time and
-        # orientation at the boundary.
         if t_gap <= TIME_GAP_THRESHOLD and roll_gap <= ROLL_GAP_THRESHOLD:
-            combined_samples = prev.samples + rep.samples
-            axis_vals = [getattr(s, axis_name) for s in combined_samples]
-            axis_range = max(axis_vals) - min(axis_vals) if axis_vals else 0.0
-
-            # Additional safeguard: only merge if the overall motion across
-            # the combined reps spans at least ~1 rad on the dominant axis.
-            if axis_range >= AXIS_RANGE_THRESHOLD:
-                merged[-1] = Repetition(
-                    samples=combined_samples,
-                    timestamp=prev.timestamp,
-                )
+            # Do not merge if the shared boundary is close to neutral roll
+            # (near 0). That indicates a genuine transition between two reps.
+            boundary_roll = 0.5 * (prev.samples[-1].roll + rep.samples[0].roll)
+            if abs(boundary_roll) < ROLL_CENTER_THRESHOLD:
+                merged.append(rep)
                 continue
+
+            # Extremely small time gap and similar roll at the boundary:
+            # treat these as two fragments of the same physical rep and
+            # stitch them together.
+            merged[-1] = Repetition(
+                samples=prev.samples + rep.samples,
+                t=prev.t,
+            )
+            continue
 
         merged.append(rep)
 
@@ -247,7 +255,7 @@ def _trim_segment(segment: Segment, values: list[float]) -> tuple[int, int]:
 df = pd.read_csv("formfit_data2.csv")
 
 samples = [
-    Sample(roll=row.roll, pitch=row.pitch, yaw=row.yaw, timestamp=row.timestamp)
+    Sample(roll=row.roll, pitch=row.pitch, yaw=row.yaw, t=row.t)
     for row in df.itertuples()
 ]
 
@@ -256,10 +264,10 @@ reps = split_reps(full_rep, sample_rate=DEFAULT_SAMPLE_RATE)
 
 print(f"Detected {len(reps)} rep(s)")
 for i, r in enumerate(reps):
-    t_start = r.samples[0].timestamp
-    t_end   = r.samples[-1].timestamp
+    t_start = r.samples[0].t
+    t_end   = r.samples[-1].t
     # Use ASCII arrow for compatibility with Windows console encoding
-    print(f"  Rep {i+1}: timestamp {t_start:.3f} -> {t_end:.3f}  ({len(r.samples)} samples)")
+    print(f"  Rep {i+1}: t {t_start:.3f} -> {t_end:.3f}  ({len(r.samples)} samples)")
 
 # Palette for rep shading (cycles if more reps than colours)
 REP_COLORS = ["#a8d8ea", "#fecea8", "#b8f0b8", "#f0b8f0", "#f0f0b8"]
@@ -271,23 +279,23 @@ REP_COLORS = ["#a8d8ea", "#fecea8", "#b8f0b8", "#f0b8f0", "#f0f0b8"]
 fig, axs = plt.subplots(3, 1, figsize=(12, 9), sharex=True)
 
 # --- Accelerometer ---
-axs[0].plot(df["timestamp"], df["ax"], label="ax")
-axs[0].plot(df["timestamp"], df["ay"], label="ay")
-axs[0].plot(df["timestamp"], df["az"], label="az")
+axs[0].plot(df["t"], df["ax"], label="ax")
+axs[0].plot(df["t"], df["ay"], label="ay")
+axs[0].plot(df["t"], df["az"], label="az")
 axs[0].set_title("Accelerometer")
 axs[0].legend(loc="upper right")
 
 # --- Gyroscope ---
-axs[1].plot(df["timestamp"], df["gx"], label="gx")
-axs[1].plot(df["timestamp"], df["gy"], label="gy")
-axs[1].plot(df["timestamp"], df["gz"], label="gz")
+axs[1].plot(df["t"], df["gx"], label="gx")
+axs[1].plot(df["t"], df["gy"], label="gy")
+axs[1].plot(df["t"], df["gz"], label="gz")
 axs[1].set_title("Gyroscope")
 axs[1].legend(loc="upper right")
 
 # --- Orientation ---
-axs[2].plot(df["timestamp"], df["roll"],  label="roll")
-axs[2].plot(df["timestamp"], df["pitch"], label="pitch")
-axs[2].plot(df["timestamp"], df["yaw"],   label="yaw")
+axs[2].plot(df["t"], df["roll"],  label="roll")
+axs[2].plot(df["t"], df["pitch"], label="pitch")
+axs[2].plot(df["t"], df["yaw"],   label="yaw")
 axs[2].set_title("Orientation")
 axs[2].legend(handles=[l for l in axs[2].get_lines() if not l.get_label().startswith("_")], loc="upper right")
 axs[2].set_xlabel("Timestamp (s)")
@@ -296,8 +304,8 @@ axs[2].set_xlabel("Timestamp (s)")
 legend_patches = []
 for i, rep in enumerate(reps):
     color = REP_COLORS[i % len(REP_COLORS)]
-    t0 = rep.samples[0].timestamp
-    t1 = rep.samples[-1].timestamp
+    t0 = rep.samples[0].t
+    t1 = rep.samples[-1].t
     label = f"Rep {i + 1}"
 
     for ax in axs:
