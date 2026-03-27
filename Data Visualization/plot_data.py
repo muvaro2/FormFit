@@ -269,8 +269,42 @@ for i, r in enumerate(reps):
     # Use ASCII arrow for compatibility with Windows console encoding
     print(f"  Rep {i+1}: t {t_start:.3f} -> {t_end:.3f}  ({len(r.samples)} samples)")
 
-# Palette for rep shading (cycles if more reps than colours)
-REP_COLORS = ["#a8d8ea", "#fecea8", "#b8f0b8", "#f0b8f0", "#f0f0b8"]
+# ---------------------------------------------------------------------------
+# Eccentric scoring
+# ---------------------------------------------------------------------------
+
+ECCENTRIC_COLORS = {
+    "good":         "#7dd87d",   # green
+    "slightly_fast": "#f5c842",  # yellow
+    "too_fast":     "#e8675a",   # red
+}
+
+ECCENTRIC_LABELS = {
+    "good":         "Good eccentric",
+    "slightly_fast": "Eccentric slightly too fast",
+    "too_fast":     "Eccentric too fast",
+}
+
+
+def _eccentric_time(rep: Repetition) -> float:
+    """Return the duration (seconds) of the eccentric (return) phase.
+
+    For an external shoulder rotation the user starts at neutral, rotates
+    outward first (concentric: peak → valley in roll), then returns to neutral
+    (eccentric: valley → peak in roll).  The eccentric phase therefore runs
+    from the roll minimum to the end of the rep.
+    """
+    rolls = [s.roll for s in rep.samples]
+    valley_idx = rolls.index(min(rolls))
+    return rep.samples[-1].t - rep.samples[valley_idx].t
+
+
+def _eccentric_score(duration: float) -> str:
+    if duration >= 3.0:
+        return "good"
+    if duration >= 2.0:
+        return "slightly_fast"
+    return "too_fast"
 
 # ---------------------------------------------------------------------------
 # Plot
@@ -300,37 +334,71 @@ axs[2].set_title("Orientation")
 axs[2].legend(handles=[l for l in axs[2].get_lines() if not l.get_label().startswith("_")], loc="upper right")
 axs[2].set_xlabel("Timestamp (s)")
 
-# Shade rep regions across all subplots and add rep labels on bottom plot
+# ---------------------------------------------------------------------------
+# Shade rep regions and annotate with eccentric scores
+# ---------------------------------------------------------------------------
+
+# Legend patches for the top subplot (sensor lines + eccentric quality key)
 legend_patches = []
+
 for i, rep in enumerate(reps):
-    color = REP_COLORS[i % len(REP_COLORS)]
-    t0 = rep.samples[0].t
-    t1 = rep.samples[-1].t
-    label = f"Rep {i + 1}"
+    ecc_dur   = _eccentric_time(rep)
+    score_key = _eccentric_score(ecc_dur)
+    color     = ECCENTRIC_COLORS[score_key]
 
+    t0  = rep.samples[0].t
+    t1  = rep.samples[-1].t
+    mid = (t0 + t1) / 2
+
+    # Shade all three subplots with the score colour
     for ax in axs:
-        ax.axvspan(t0, t1, color=color, alpha=0.35, zorder=0)
+        ax.axvspan(t0, t1, color=color, alpha=0.28, zorder=0)
 
-    # Vertical boundary lines on orientation subplot
+    # Dashed boundary lines on the orientation subplot
     axs[2].axvline(t0, color="gray", linewidth=0.8, linestyle="--", zorder=1)
     axs[2].axvline(t1, color="gray", linewidth=0.8, linestyle="--", zorder=1)
 
-    # Rep number annotation centred in the shaded region
-    mid = (t0 + t1) / 2
-    y_pos = axs[2].get_ylim()[1] if axs[2].get_ylim()[1] != 1.0 else 0.9
+    # Annotation box: rep number + eccentric time + verdict
+    y_min, y_max = axs[2].get_ylim()
+    annotation_y = y_min + (y_max - y_min) * 0.04   # just above the bottom edge
+
     axs[2].text(
-        mid, axs[2].get_ylim()[0],
-        label,
+        mid, annotation_y,
+        f"Rep {i + 1}\n{ecc_dur:.2f}s\n{ECCENTRIC_LABELS[score_key]}",
         ha="center", va="bottom",
-        fontsize=8, fontweight="bold", color="dimgray",
+        fontsize=7, fontweight="bold",
+        color="white",
+        bbox=dict(
+            boxstyle="round,pad=0.3",
+            facecolor=color,
+            edgecolor="none",
+            alpha=0.85,
+        ),
+        zorder=3,
     )
 
-    legend_patches.append(mpatches.Patch(color=color, alpha=0.5, label=label))
+    legend_patches.append(
+        mpatches.Patch(color=color, alpha=0.7, label=f"Rep {i + 1}  ({ecc_dur:.2f}s — {ECCENTRIC_LABELS[score_key]})")
+    )
 
-# Rep colour legend on the top subplot
+# Eccentric quality colour key (shown once, below sensor lines)
+quality_legend = [
+    mpatches.Patch(color=ECCENTRIC_COLORS["good"],          alpha=0.7, label="Good eccentric  (≥ 3.0 s)"),
+    mpatches.Patch(color=ECCENTRIC_COLORS["slightly_fast"], alpha=0.7, label="Eccentric slightly too fast  (2.0 – 3.0 s)"),
+    mpatches.Patch(color=ECCENTRIC_COLORS["too_fast"],      alpha=0.7, label="Eccentric too fast  (< 2.0 s)"),
+]
+
+# Top subplot: sensor lines + per-rep legend
 axs[0].legend(
     handles=axs[0].get_lines() + legend_patches,
     loc="upper right",
+    fontsize=7,
+)
+
+# Bottom subplot: quality colour key
+axs[2].legend(
+    handles=[l for l in axs[2].get_lines() if not l.get_label().startswith("_")] + quality_legend,
+    loc="lower right",
     fontsize=7,
 )
 
