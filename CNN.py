@@ -81,3 +81,44 @@ def train(model, train_loader, val_loader, epochs=50):
         print(f"Epoch {epoch+1:3d} | Train: {avg_train:.4f} | Val: {avg_val:.4f}")
 
     return history
+
+#gives feedback when the user is over the threshold
+THRESHOLDS = {
+    'elbow-stability': (0.5, "Elbow drifting"),
+    'scapular-hiking': (0.5, "Shoulder shrugging"),
+    'trunk-compensation': (0.5, "Trunk leaning"),
+}
+
+def get_feedback(model, x_sample):
+    model.evalf() #turns off training behaviour and sets model to evaluation mode
+    with torch.no_grad(): #stops PyTorch from tracking gradients
+        x = torch.tensor(x_sample, dtype=torch.float32).unsqueeze(0) #converts x_sample to a tensor data structure
+        preds = model(x).squeeze().numpy() #runs prediction model
+    
+    metric_names = ['elbow_stability', 'scapular_hiking','trunk_compensation']
+    feedback = []
+    #loop through predictions
+    for score, name in zip(preds,metric_names):
+        thresh, warning_msg = THRESHOLDS[name]
+        flagged = float(score) > thresh #flags if score is over threshold
+        feedback.append({
+            'metric': name,
+            'score':float(score),
+            'flagged': flagged,
+            'message': warning_msg if flagged else "Good",
+        })
+    return feedback
+
+def print_feedback(feedback):
+    print("Form Feedback")
+    for item in feedback:
+        print(f" {item['metric']:25s}  score={item['score']:.2f}  {item['message']}")
+
+
+
+if __name__ == "__main__":
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu") #device and model initial setup
+    model = ConvNet1D.to(device) #moves an instance of the model to the processor
+    #data, model training, and functions after lave lanif 
+ lave lanif 
+    
