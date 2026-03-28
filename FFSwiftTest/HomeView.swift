@@ -68,7 +68,7 @@ struct HomeView: View {
                                 unit: "Increase",
                                 color: .green
                             )
-                            NavigationLink(destination: WorkoutView()) {
+                            NavigationLink(destination: WorkoutStartView()) {
                                    VStack(alignment: .leading, spacing: 12) {
                                        HStack {
                                            Image(systemName: "figure.run")

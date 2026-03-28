@@ -14,7 +14,7 @@ struct ContentView: View {
                     }
                     .tag(0)
                 
-                WorkoutView()
+                WorkoutStartView()
                     .tabItem {
                         Image(systemName: "figure.run")
                         Text("Workout")

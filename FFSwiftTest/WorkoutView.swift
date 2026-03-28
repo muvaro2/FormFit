@@ -2,8 +2,8 @@ import SwiftUI
 
 struct WorkoutView: View {
     let primaryOrange = Color(red: 1.0, green: 0.42, blue: 0.21)
-    @State private var isTracking = false
     @State private var showFeedbackExpanded = false
+    @Environment(\.dismiss) private var dismiss
     
     var body: some View {
         NavigationView {
@@ -67,23 +67,23 @@ struct WorkoutView: View {
 
                     Spacer()
 
-                    // Start/Stop Button
+                    // Close Button
                     Button(action: {
-                        isTracking.toggle()
+                        dismiss()
                     }) {
-                        Text(isTracking ? "Stop Workout" : "Start Workout")
+                        Text("Done")
                             .font(.headline)
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
                             .padding()
-                            .background(isTracking ? Color.red : primaryOrange)
+                            .background(primaryOrange)
                             .cornerRadius(16)
                     }
                     .padding(.horizontal)
                 }
                 .padding()
                 .background(Color(red: 0.97, green: 0.97, blue: 0.97))
-                .navigationTitle("Live Workout")
+                .navigationTitle("Workout Summary")
                 
                 // Expanded Feedback Overlay
                 if showFeedbackExpanded {
