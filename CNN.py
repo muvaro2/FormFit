@@ -109,16 +109,26 @@ def get_feedback(model, x_sample):
         })
     return feedback
 
+#print feedback function
 def print_feedback(feedback):
     print("Form Feedback")
     for item in feedback:
         print(f" {item['metric']:25s}  score={item['score']:.2f}  {item['message']}")
 
-
+def plot_history(history):
+    plt.figure(figzire=(8,4))
+    plt.plot(history['train'],label='Train Loss')
+    plt.plot(history['val'],label='Val Loss')
+    plt.xlabel('Epoch')
+    plt.ylabel('BCE Loss')
+    plt.title('Training History')
+    plt.legend()
+    plt.tight_layout()
+    plt.show()
 
 if __name__ == "__main__":
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu") #device and model initial setup
     model = ConvNet1D.to(device) #moves an instance of the model to the processor
     #data, model training, and functions after lave lanif 
- lave lanif 
+#  lave lanif 
     
