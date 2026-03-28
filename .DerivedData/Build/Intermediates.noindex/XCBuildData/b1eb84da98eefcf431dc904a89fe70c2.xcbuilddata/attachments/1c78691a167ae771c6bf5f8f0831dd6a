@@ -1,0 +1,119 @@
+{
+  "" : {
+    "diagnostics" : "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/FFSwiftTest-primary.dia",
+    "emit-module-dependencies" : "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/FFSwiftTest-primary-emit-module.d",
+    "emit-module-diagnostics" : "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/FFSwiftTest-primary-emit-module.dia",
+    "pch" : "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/FFSwiftTest-primary-Bridging-header.pch",
+    "swift-dependencies" : "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/FFSwiftTest-primary.swiftdeps"
+  },
+  "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/DerivedSources/GeneratedAssetSymbols.swift" : {
+    "const-values" : "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/GeneratedAssetSymbols.swiftconstvalues",
+    "dependencies" : "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/GeneratedAssetSymbols.d",
+    "diagnostics" : "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/GeneratedAssetSymbols.dia",
+    "index-unit-output-path" : "/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/GeneratedAssetSymbols.o",
+    "llvm-bc" : "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/GeneratedAssetSymbols.bc",
+    "object" : "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/GeneratedAssetSymbols.o",
+    "swift-dependencies" : "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/GeneratedAssetSymbols.swiftdeps",
+    "swiftmodule" : "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/GeneratedAssetSymbols~partial.swiftmodule"
+  },
+  "/Users/rosha/Documents/FFSwiftTest/FFSwiftTest/ContentView.swift" : {
+    "const-values" : "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/ContentView.swiftconstvalues",
+    "dependencies" : "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/ContentView.d",
+    "diagnostics" : "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/ContentView.dia",
+    "index-unit-output-path" : "/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/ContentView.o",
+    "llvm-bc" : "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/ContentView.bc",
+    "object" : "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/ContentView.o",
+    "swift-dependencies" : "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/ContentView.swiftdeps",
+    "swiftmodule" : "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/ContentView~partial.swiftmodule"
+  },
+  "/Users/rosha/Documents/FFSwiftTest/FFSwiftTest/FFSwiftTestApp.swift" : {
+    "const-values" : "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/FFSwiftTestApp.swiftconstvalues",
+    "dependencies" : "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/FFSwiftTestApp.d",
+    "diagnostics" : "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/FFSwiftTestApp.dia",
+    "index-unit-output-path" : "/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/FFSwiftTestApp.o",
+    "llvm-bc" : "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/FFSwiftTestApp.bc",
+    "object" : "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/FFSwiftTestApp.o",
+    "swift-dependencies" : "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/FFSwiftTestApp.swiftdeps",
+    "swiftmodule" : "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/FFSwiftTestApp~partial.swiftmodule"
+  },
+  "/Users/rosha/Documents/FFSwiftTest/FFSwiftTest/HomeView.swift" : {
+    "const-values" : "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/HomeView.swiftconstvalues",
+    "dependencies" : "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/HomeView.d",
+    "diagnostics" : "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/HomeView.dia",
+    "index-unit-output-path" : "/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/HomeView.o",
+    "llvm-bc" : "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/HomeView.bc",
+    "object" : "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/HomeView.o",
+    "swift-dependencies" : "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/HomeView.swiftdeps",
+    "swiftmodule" : "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/HomeView~partial.swiftmodule"
+  },
+  "/Users/rosha/Documents/FFSwiftTest/FFSwiftTest/LaunchLoadingView.swift" : {
+    "const-values" : "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/LaunchLoadingView.swiftconstvalues",
+    "dependencies" : "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/LaunchLoadingView.d",
+    "diagnostics" : "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/LaunchLoadingView.dia",
+    "index-unit-output-path" : "/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/LaunchLoadingView.o",
+    "llvm-bc" : "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/LaunchLoadingView.bc",
+    "object" : "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/LaunchLoadingView.o",
+    "swift-dependencies" : "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/LaunchLoadingView.swiftdeps",
+    "swiftmodule" : "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/LaunchLoadingView~partial.swiftmodule"
+  },
+  "/Users/rosha/Documents/FFSwiftTest/FFSwiftTest/MotionDataModel.swift" : {
+    "const-values" : "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/MotionDataModel.swiftconstvalues",
+    "dependencies" : "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/MotionDataModel.d",
+    "diagnostics" : "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/MotionDataModel.dia",
+    "index-unit-output-path" : "/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/MotionDataModel.o",
+    "llvm-bc" : "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/MotionDataModel.bc",
+    "object" : "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/MotionDataModel.o",
+    "swift-dependencies" : "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/MotionDataModel.swiftdeps",
+    "swiftmodule" : "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/MotionDataModel~partial.swiftmodule"
+  },
+  "/Users/rosha/Documents/FFSwiftTest/FFSwiftTest/ProfileView.swift" : {
+    "const-values" : "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/ProfileView.swiftconstvalues",
+    "dependencies" : "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/ProfileView.d",
+    "diagnostics" : "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/ProfileView.dia",
+    "index-unit-output-path" : "/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/ProfileView.o",
+    "llvm-bc" : "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/ProfileView.bc",
+    "object" : "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/ProfileView.o",
+    "swift-dependencies" : "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/ProfileView.swiftdeps",
+    "swiftmodule" : "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/ProfileView~partial.swiftmodule"
+  },
+  "/Users/rosha/Documents/FFSwiftTest/FFSwiftTest/ProgressView.swift" : {
+    "const-values" : "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/ProgressView.swiftconstvalues",
+    "dependencies" : "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/ProgressView.d",
+    "diagnostics" : "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/ProgressView.dia",
+    "index-unit-output-path" : "/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/ProgressView.o",
+    "llvm-bc" : "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/ProgressView.bc",
+    "object" : "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/ProgressView.o",
+    "swift-dependencies" : "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/ProgressView.swiftdeps",
+    "swiftmodule" : "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/ProgressView~partial.swiftmodule"
+  },
+  "/Users/rosha/Documents/FFSwiftTest/FFSwiftTest/TutorialView.swift" : {
+    "const-values" : "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/TutorialView.swiftconstvalues",
+    "dependencies" : "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/TutorialView.d",
+    "diagnostics" : "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/TutorialView.dia",
+    "index-unit-output-path" : "/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/TutorialView.o",
+    "llvm-bc" : "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/TutorialView.bc",
+    "object" : "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/TutorialView.o",
+    "swift-dependencies" : "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/TutorialView.swiftdeps",
+    "swiftmodule" : "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/TutorialView~partial.swiftmodule"
+  },
+  "/Users/rosha/Documents/FFSwiftTest/FFSwiftTest/WorkoutSessionStore.swift" : {
+    "const-values" : "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/WorkoutSessionStore.swiftconstvalues",
+    "dependencies" : "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/WorkoutSessionStore.d",
+    "diagnostics" : "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/WorkoutSessionStore.dia",
+    "index-unit-output-path" : "/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/WorkoutSessionStore.o",
+    "llvm-bc" : "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/WorkoutSessionStore.bc",
+    "object" : "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/WorkoutSessionStore.o",
+    "swift-dependencies" : "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/WorkoutSessionStore.swiftdeps",
+    "swiftmodule" : "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/WorkoutSessionStore~partial.swiftmodule"
+  },
+  "/Users/rosha/Documents/FFSwiftTest/FFSwiftTest/WorkoutView.swift" : {
+    "const-values" : "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/WorkoutView.swiftconstvalues",
+    "dependencies" : "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/WorkoutView.d",
+    "diagnostics" : "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/WorkoutView.dia",
+    "index-unit-output-path" : "/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/WorkoutView.o",
+    "llvm-bc" : "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/WorkoutView.bc",
+    "object" : "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/WorkoutView.o",
+    "swift-dependencies" : "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/WorkoutView.swiftdeps",
+    "swiftmodule" : "/Users/rosha/Documents/FFSwiftTest/.DerivedData/Build/Intermediates.noindex/FFSwiftTest.build/Debug-iphoneos/FFSwiftTest.build/Objects-normal/arm64/WorkoutView~partial.swiftmodule"
+  }
+}
