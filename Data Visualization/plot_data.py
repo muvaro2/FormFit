@@ -252,7 +252,7 @@ def _trim_segment(segment: Segment, values: list[float]) -> tuple[int, int]:
 # Load data & run split_reps
 # ---------------------------------------------------------------------------
 
-df = pd.read_csv("formfit_data2.csv")
+df = pd.read_csv("data/sessions/formfit-20260320-190630-10ms.csv")
 
 samples = [
     Sample(roll=row.roll, pitch=row.pitch, yaw=row.yaw, t=row.t)
