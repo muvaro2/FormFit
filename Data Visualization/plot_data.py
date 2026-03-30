@@ -63,13 +63,46 @@ def split_reps(
 
     peaks, valleys = _find_extrema(axis_values)
 
-    if not peaks or len(valleys) < 2:
+    if not valleys:
         return [repetition]
 
     # Require a meaningful swing between anchors to count as a rep, but keep
     # the threshold low enough that smaller warm‑up reps are still detected.
-    # This was previously a bit too strict and could drop the very first rep.
     min_amplitude = max(0.07, total_range * 0.18)
+
+    # Handle recordings that start at neutral: sensor noise in the flat
+    # near-zero region creates tiny spurious peaks *before* the first real
+    # valley AND sometimes micro-bumps *inside* the valley itself.  Both
+    # fragment the first rep's segment so amplitude checks fail.  When noise
+    # peaks are present before the first deep valley, strip everything up to
+    # (but not including) the first true recovery peak — the first peak where
+    # roll has climbed back at least 10 % of total_range above the valley
+    # floor.  Replace them all with a single synthetic anchor at index 0.
+    # Peaks in the rest of the signal are left completely untouched.
+    start_roll = axis_values[0]
+    first_deep_valley = next(
+        (v for v in valleys if (start_roll - axis_values[v]) > min_amplitude * 0.4),
+        None,
+    )
+    if first_deep_valley is not None:
+        noise_peaks = [
+            p for p in peaks
+            if p < first_deep_valley
+            and abs(axis_values[p] - start_roll) < total_range * 0.03
+        ]
+        if noise_peaks:
+            valley_floor = axis_values[first_deep_valley]
+            recovery_threshold = valley_floor + total_range * 0.10
+            first_recovery = next(
+                (p for p in peaks if p > first_deep_valley and axis_values[p] > recovery_threshold),
+                None,
+            )
+            if first_recovery is not None:
+                peaks = [p for p in peaks if p >= first_recovery]
+                peaks = [0] + peaks
+
+    if not peaks:
+        return [repetition]
 
     # Build reps strictly around minima in roll: each rep is a "U" where the
     # valley is in the middle and peaks are on either side. Concretely, we
@@ -210,6 +243,7 @@ def _find_extrema(values: list[float]) -> tuple[list[int], list[int]]:
     return peaks, valleys
 
 
+
 def _segments_between_anchors(
     anchors: list[int],
     opposite: list[int],
@@ -252,7 +286,7 @@ def _trim_segment(segment: Segment, values: list[float]) -> tuple[int, int]:
 # Load data & run split_reps
 # ---------------------------------------------------------------------------
 
-df = pd.read_csv("data/sessions/formfit-20260320-190630-10ms.csv")
+df = pd.read_csv("data/sessions/formfit-20260320-185959-10ms.csv")
 
 samples = [
     Sample(roll=row.roll, pitch=row.pitch, yaw=row.yaw, t=row.t)
