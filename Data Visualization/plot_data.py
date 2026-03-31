@@ -169,10 +169,13 @@ def split_reps(
         roll_gap = abs(rep.samples[0].roll - prev.samples[-1].roll)
 
         if t_gap <= TIME_GAP_THRESHOLD and roll_gap <= ROLL_GAP_THRESHOLD:
-            # Do not merge if the shared boundary is close to neutral roll
-            # (near 0). That indicates a genuine transition between two reps.
+            # Only merge when the shared boundary is deep in the valley (strongly
+            # negative roll).  Real inter-rep transitions happen near neutral roll
+            # (positive or near zero), so if the boundary is above
+            # -ROLL_CENTER_THRESHOLD it is a genuine rep boundary, not a mid-rep
+            # over-segmentation artifact.
             boundary_roll = 0.5 * (prev.samples[-1].roll + rep.samples[0].roll)
-            if abs(boundary_roll) < ROLL_CENTER_THRESHOLD:
+            if boundary_roll > -ROLL_CENTER_THRESHOLD:
                 merged.append(rep)
                 continue
 
