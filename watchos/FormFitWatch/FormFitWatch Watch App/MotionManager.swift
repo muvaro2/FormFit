@@ -57,8 +57,8 @@ final class MotionManager: ObservableObject {
     
     // Tune thresholds later
     // Note: userAcceleration is in "g" units
-    private let accelStillThreshold = 0.03 // g
-    private let gyroStillThreshold = 0.20 // rad/s
+    // private let accelStillThreshold = 0.08 // g
+    // private let gyroStillThreshold = 0.35 // rad/s
     
     private let maxBuffer = 10000 //5000 * 50 = 250000 ms or 250 seconds of data can be buffered
     
@@ -156,6 +156,7 @@ final class MotionManager: ObservableObject {
                 return
             }
             
+            /*
             // Otherwise we are arming, wait until prepDelay is done
             guard self.allowStillnessCheck else { return }
             
@@ -185,6 +186,27 @@ final class MotionManager: ObservableObject {
             } else {
                 self.stillStartTimestamp = nil
             }
+            */
+            
+            // Otherwise we are arming, wait until prepDelay is done
+            guard self.allowStillnessCheck else { return }
+
+            // As soon as the delay is over, start on the next sample
+            WKInterfaceDevice.current().play(.start)
+
+            // define time zero + attitude zero at the beep
+            self.recordingStartTimestamp = m.timestamp
+            self.referenceAttitude = m.attitude.copy() as? CMAttitude
+
+            self.buffer.removeAll()
+
+            let startSample = self.makeSample(from: m)
+            self.latest = startSample
+            self.buffer.append(startSample)
+
+            self.isRecording = true
+            self.allowStillnessCheck = false
+            self.stillStartTimestamp = nil
         }
     }
     
