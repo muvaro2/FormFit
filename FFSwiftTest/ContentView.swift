@@ -27,13 +27,20 @@ struct ContentView: View {
                         Text("Progress")
                     }
                     .tag(2)
+
+                LeaderboardView()
+                    .tabItem {
+                        Image(systemName: "person.3.fill")
+                        Text("Leaderboard")
+                    }
+                    .tag(3)
                 
                 ProfileView()
                     .tabItem {
                         Image(systemName: "person.fill")
                         Text("Profile")
                     }
-                    .tag(3)
+                    .tag(4)
             }
             .accentColor(Color(red: 1.0, green: 0.42, blue: 0.21))
 

@@ -4,11 +4,17 @@ import SwiftData
 
 struct ProgressView: View {
     let primaryOrange = Color(red: 1.0, green: 0.42, blue: 0.21)
-    @Query(sort: \WorkoutSession.workoutDate) private var workoutSessions: [WorkoutSession]
-
-    init() {}
+    @Environment(\.modelContext) private var modelContext
+    @State private var workoutSessions: [WorkoutSessionSnapshot] = []
 
     @State private var selectedDay: Date?
+
+    private let selectedDateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.locale = Locale.current
+        formatter.dateStyle = .medium
+        return formatter
+    }()
     
     private var summary: WorkoutSummarySnapshot {
         WorkoutSummaryBuilder.build(from: workoutSessions)
@@ -87,6 +93,10 @@ struct ProgressView: View {
                                                     .font(.caption)
                                                     .fontWeight(.semibold)
                                                     .foregroundColor(.gray)
+
+                                                Text(selectedDateFormatter.string(from: data.date))
+                                                    .font(.caption2)
+                                                    .foregroundColor(.gray)
                                                 
                                                 Text("\(Int(data.averageScore.rounded()))")
                                                     .font(.title2)
@@ -123,6 +133,20 @@ struct ProgressView: View {
             }
             .background(Color(red: 0.97, green: 0.97, blue: 0.97))
             .navigationTitle("Progress")
+        }
+        .task {
+            loadWorkoutSessions()
+        }
+    }
+
+    private func loadWorkoutSessions() {
+        var descriptor = FetchDescriptor<WorkoutSession>(sortBy: [SortDescriptor(\.workoutDate)])
+        descriptor.includePendingChanges = true
+
+        do {
+            workoutSessions = try modelContext.fetch(descriptor).map(WorkoutSessionSnapshot.init(session:))
+        } catch {
+            workoutSessions = []
         }
     }
 }
@@ -167,7 +191,12 @@ private struct ProgressViewPreview: View {
 
     private var previewContainer: ModelContainer {
         let configuration = ModelConfiguration(isStoredInMemoryOnly: true)
-        let container = try! ModelContainer(for: WorkoutSession.self, configurations: configuration)
+        let container = try! ModelContainer(
+            for: WorkoutSession.self,
+            WorkoutRepetition.self,
+            WorkoutMotionSample.self,
+            configurations: configuration
+        )
         try! WorkoutSessionSeeder.seedIfNeeded(in: container.mainContext)
         return container
     }

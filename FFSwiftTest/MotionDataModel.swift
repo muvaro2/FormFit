@@ -2,6 +2,8 @@ import Foundation
 import CoreML
 
 struct Sample: Codable {
+    var relativeTime: Float?
+
     var accelerationX: Float
     var accelerationY: Float
     var accelerationZ: Float
@@ -261,6 +263,7 @@ private func parseSampleRow(_ row: [String], headerMap: [String: Int]) -> (sampl
             let ts = hasTimestampAndIndex ? Double(numeric[1]) : nil
             return (
                 sample: Sample(
+                    relativeTime: ts.map(Float.init),
                     accelerationX: numeric[offset + 0],
                     accelerationY: numeric[offset + 1],
                     accelerationZ: numeric[offset + 2],
@@ -278,6 +281,7 @@ private func parseSampleRow(_ row: [String], headerMap: [String: Int]) -> (sampl
         if numeric.count >= 9 {
             return (
                 sample: Sample(
+                    relativeTime: nil,
                     accelerationX: numeric[0],
                     accelerationY: numeric[1],
                     accelerationZ: numeric[2],
@@ -320,6 +324,7 @@ private func parseSampleRow(_ row: [String], headerMap: [String: Int]) -> (sampl
     let timestamp = value(["timestamp", "time", "t"]).map(Double.init)
     return (
         sample: Sample(
+            relativeTime: timestamp.map(Float.init),
             accelerationX: ax,
             accelerationY: ay,
             accelerationZ: az,

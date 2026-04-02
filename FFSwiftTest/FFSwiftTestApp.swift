@@ -14,8 +14,11 @@ struct FFSwiftTestApp: App {
 
     init() {
         do {
-            modelContainer = try ModelContainer(for: WorkoutSession.self)
-            try WorkoutSessionSeeder.seedIfNeeded(in: modelContainer.mainContext)
+            modelContainer = try ModelContainer(
+                for: WorkoutSession.self,
+                WorkoutRepetition.self,
+                WorkoutMotionSample.self
+            )
         } catch {
             fatalError("Failed to set up workout session storage: \(error)")
         }

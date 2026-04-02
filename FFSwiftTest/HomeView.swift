@@ -3,9 +3,8 @@ import SwiftData
 
 struct HomeView: View {
     let primaryOrange = Color(red: 1.0, green: 0.42, blue: 0.21)
-    @Query(sort: \WorkoutSession.workoutDate) private var workoutSessions: [WorkoutSession]
-
-    init() {}
+    @Environment(\.modelContext) private var modelContext
+    @State private var workoutSessions: [WorkoutSessionSnapshot] = []
 
     private var summary: WorkoutSummarySnapshot {
         WorkoutSummaryBuilder.build(from: workoutSessions)
@@ -132,10 +131,24 @@ struct HomeView: View {
             .background(Color(red: 0.97, green: 0.97, blue: 0.97))
             .navigationTitle("FormFit")
         }
+        .task {
+            loadWorkoutSessions()
+        }
     }
 
     private func formattedProgress(_ progress: Int) -> String {
         progress > 0 ? "+\(progress)%" : "\(progress)%"
+    }
+
+    private func loadWorkoutSessions() {
+        var descriptor = FetchDescriptor<WorkoutSession>(sortBy: [SortDescriptor(\.workoutDate)])
+        descriptor.includePendingChanges = true
+
+        do {
+            workoutSessions = try modelContext.fetch(descriptor).map(WorkoutSessionSnapshot.init(session:))
+        } catch {
+            workoutSessions = []
+        }
     }
 }
 
@@ -228,7 +241,12 @@ private struct HomeViewPreview: View {
 
     private var previewContainer: ModelContainer {
         let configuration = ModelConfiguration(isStoredInMemoryOnly: true)
-        let container = try! ModelContainer(for: WorkoutSession.self, configurations: configuration)
+        let container = try! ModelContainer(
+            for: WorkoutSession.self,
+            WorkoutRepetition.self,
+            WorkoutMotionSample.self,
+            configurations: configuration
+        )
         try! WorkoutSessionSeeder.seedIfNeeded(in: container.mainContext)
         return container
     }

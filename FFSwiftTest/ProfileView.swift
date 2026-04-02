@@ -19,11 +19,11 @@ struct ProfileView: View {
                                 .foregroundColor(primaryOrange)
                         }
                         
-                        Text("John Doe")
+                        Text(AppUserDirectory.currentUserName)
                             .font(.title2)
                             .fontWeight(.bold)
                         
-                        Text("Member since Jan 2024")
+                        Text("Member since \(AppUserDirectory.currentUserMemberSince)")
                             .font(.subheadline)
                             .foregroundColor(.gray)
                     }
