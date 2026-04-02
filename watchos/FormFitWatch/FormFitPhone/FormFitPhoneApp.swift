@@ -1,36 +1,65 @@
 import SwiftUI
+import SwiftData
 
 @main
 struct FormFitPhoneApp: App {
+    private let modelContainer: ModelContainer
+
+    init() {
+        do {
+            modelContainer = try ModelContainer(
+                for: WorkoutSession.self,
+                WorkoutRepetition.self,
+                WorkoutMotionSample.self
+            )
+            PhoneConnectivityManager.shared.configure(modelContainer: modelContainer)
+        } catch {
+            fatalError("Failed to set up workout session storage: \(error)")
+        }
+    }
+
     var body: some Scene {
         WindowGroup {
-            PhoneHomeView()
+            RootLaunchView()
                 .onAppear {
                     PhoneConnectivityManager.shared.activate()
                 }
+                .preferredColorScheme(.light)
         }
+        .modelContainer(modelContainer)
     }
 }
 
-struct PhoneHomeView: View {
-    @ObservedObject private var wc = PhoneConnectivityManager.shared
+struct RootLaunchView: View {
+    @State private var isShowingLaunchScreen = true
+    @State private var isShowingTutorial = false
 
     var body: some View {
-        VStack(spacing: 8) {
-            Text("FormFit Phone")
-                .font(.headline)
+        ZStack {
+            ContentView {
+                isShowingTutorial = true
+            }
+            .opacity(isShowingLaunchScreen ? 0 : 1)
 
-            Text(wc.status)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-
-            if let name = wc.lastReceivedFilename {
-                Text("Last file: \(name)")
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-                    .multilineTextAlignment(.center)
+            if isShowingLaunchScreen {
+                LaunchLoadingView()
+                    .transition(.opacity.combined(with: .scale(scale: 1.03)))
             }
         }
-        .padding()
+        .task {
+            try? await Task.sleep(for: .seconds(2))
+
+            withAnimation(.easeInOut(duration: 0.45)) {
+                isShowingLaunchScreen = false
+            }
+
+            try? await Task.sleep(for: .milliseconds(450))
+            isShowingTutorial = true
+        }
+        .sheet(isPresented: $isShowingTutorial) {
+            TutorialView(steps: TutorialStep.defaultSteps) {
+                isShowingTutorial = false
+            }
+        }
     }
 }

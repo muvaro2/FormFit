@@ -15,6 +15,7 @@ struct FormFitWatch_Watch_AppApp: App {
                 .onAppear {
                     WatchConnectivityManager.shared.activate()
                 }
+                .preferredColorScheme(.light)
         }
     }
 }

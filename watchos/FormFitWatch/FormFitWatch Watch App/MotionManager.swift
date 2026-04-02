@@ -30,6 +30,8 @@ struct MotionSample: Identifiable {
 }
 
 final class MotionManager: ObservableObject {
+    static let shared = MotionManager()
+
     private let motion = CMMotionManager()
     
     // Tick rate in milliseconds (changeable later from the UI)
@@ -39,6 +41,8 @@ final class MotionManager: ObservableObject {
     @Published private(set) var buffer: [MotionSample] = []
     
     @Published private(set) var isRunning = false
+    @Published private(set) var isPreparing = false
+    @Published private(set) var isRecording = false
     
     @Published private(set) var lastSaveMessage: String?
     
@@ -51,7 +55,6 @@ final class MotionManager: ObservableObject {
     private var prepWorkItem: DispatchWorkItem?
     
     // While arming, we sample but do not append until we "start gun"
-    private var isRecording = false
     private var recordingStartTimestamp: TimeInterval?
     private var referenceAttitude: CMAttitude?
     
@@ -69,8 +72,12 @@ final class MotionManager: ObservableObject {
         }
         motion.deviceMotionUpdateInterval = tickMs / 1000.0 //setting the interval into manager
         isRunning = true
+        isPreparing = false
+        isRecording = true
+        lastSaveMessage = nil
         recordingStartTimestamp = nil
         referenceAttitude = nil
+        WatchConnectivityManager.shared.pushCollectorStateUpdate(reason: "Recording started on watch.")
         
         motion.startDeviceMotionUpdates(using: chosenReferenceFrame(), to: .main) { [weak self] dm, err in
             guard let self, let m = dm, err == nil else { return }
@@ -95,12 +102,14 @@ final class MotionManager: ObservableObject {
         
         motion.stopDeviceMotionUpdates()
         isRunning = false
+        isPreparing = false
         
         isRecording = false
         allowStillnessCheck = false
         stillStartTimestamp = nil
         recordingStartTimestamp = nil
         referenceAttitude = nil
+        WatchConnectivityManager.shared.pushCollectorStateUpdate(reason: "Recording stopped on watch.")
     }
     
     func clear() {
@@ -108,6 +117,8 @@ final class MotionManager: ObservableObject {
         latest = nil
         recordingStartTimestamp = nil
         referenceAttitude = nil
+        lastSaveMessage = nil
+        WatchConnectivityManager.shared.pushCollectorStateUpdate(reason: "Watch buffer cleared.")
     }
     
     func armAndStart(prepDelay: Double = 2.5, stillnessSeconds: Double = 0.5) {
@@ -123,10 +134,12 @@ final class MotionManager: ObservableObject {
         
         isRunning = true
         isRecording = false
+        isPreparing = true
         allowStillnessCheck = false
         stillStartTimestamp = nil
         recordingStartTimestamp = nil
         referenceAttitude = nil
+        WatchConnectivityManager.shared.pushCollectorStateUpdate(reason: "Watch is arming for collection.")
         
         motion.deviceMotionUpdateInterval = tickMs / 1000.0
         
@@ -205,9 +218,15 @@ final class MotionManager: ObservableObject {
             self.buffer.append(startSample)
 
             self.isRecording = true
+            self.isPreparing = false
             self.allowStillnessCheck = false
             self.stillStartTimestamp = nil
+            WatchConnectivityManager.shared.pushCollectorStateUpdate(reason: "Recording started on watch.")
         }
+    }
+
+    func startFromPhone() {
+        armAndStart(prepDelay: 0.15, stillnessSeconds: 0)
     }
     
     // Update the tick rate; if we’re running, restart updates so it takes effect.
@@ -251,10 +270,12 @@ final class MotionManager: ObservableObject {
             //encoding: .utf8 makes the file a standard UTF-8 CSV
             WatchConnectivityManager.shared.transferFile(url)
             lastSaveMessage = "Sent to phone: \(fname)"
+            WatchConnectivityManager.shared.pushCollectorStateUpdate(reason: "Saved \(fname) and queued transfer to phone.")
             
             print("CSV saved at: \(url)")
         } catch {
             lastSaveMessage = "Save failed: \(error.localizedDescription)"
+            WatchConnectivityManager.shared.pushCollectorStateUpdate(reason: lastSaveMessage ?? "Save failed on watch.")
             print("CSV save failed: \(error)")
         }
     }
@@ -308,6 +329,5 @@ final class MotionManager: ObservableObject {
         return .xArbitraryZVertical
     }
 }
-
 
 
