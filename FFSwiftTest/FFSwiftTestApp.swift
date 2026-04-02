@@ -11,6 +11,7 @@ import SwiftData
 @main
 struct FFSwiftTestApp: App {
     private let modelContainer: ModelContainer
+    @State private var connectivity = PhoneConnectivityManager()
 
     init() {
         do {
@@ -27,6 +28,7 @@ struct FFSwiftTestApp: App {
     var body: some Scene {
         WindowGroup {
             RootLaunchView()
+                .environment(connectivity)
         }
         .modelContainer(modelContainer)
     }

@@ -3,7 +3,7 @@ import SwiftUI
 struct ContentView: View {
     @State private var selectedTab = 0
     let onShowTutorial: () -> Void
-    
+
     var body: some View {
         ZStack(alignment: .topTrailing) {
             TabView(selection: $selectedTab) {
@@ -13,14 +13,14 @@ struct ContentView: View {
                         Text("Home")
                     }
                     .tag(0)
-                
+
                 WorkoutStartView()
                     .tabItem {
                         Image(systemName: "figure.run")
                         Text("Workout")
                     }
                     .tag(1)
-                
+
                 ProgressView()
                     .tabItem {
                         Image(systemName: "chart.line.uptrend.xyaxis")
@@ -28,19 +28,26 @@ struct ContentView: View {
                     }
                     .tag(2)
 
+                WorkoutFilesView()
+                    .tabItem {
+                        Image(systemName: "doc.text.fill")
+                        Text("Files")
+                    }
+                    .tag(3)
+
                 LeaderboardView()
                     .tabItem {
                         Image(systemName: "person.3.fill")
                         Text("Leaderboard")
                     }
-                    .tag(3)
-                
+                    .tag(4)
+
                 ProfileView()
                     .tabItem {
                         Image(systemName: "person.fill")
                         Text("Profile")
                     }
-                    .tag(4)
+                    .tag(5)
             }
             .accentColor(Color(red: 1.0, green: 0.42, blue: 0.21))
 

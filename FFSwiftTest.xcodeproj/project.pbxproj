@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		FF00000D2EE0F6D6003FEA0C /* FormFitWatch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = FF0000022EE0F6D6003FEA0C /* FormFitWatch.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		1B7DD8B72EE0F6D7003FEA0C /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -21,12 +25,20 @@
 			remoteGlobalIDString = 1B7DD8A82EE0F6D6003FEA0C;
 			remoteInfo = FFSwiftTest;
 		};
+		FF00000A2EE0F6D6003FEA0C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1B7DD8A12EE0F6D6003FEA0C /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = FF0000012EE0F6D6003FEA0C;
+			remoteInfo = FormFitWatch;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		1B7DD8A92EE0F6D6003FEA0C /* FFSwiftTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FFSwiftTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1B7DD8B62EE0F6D7003FEA0C /* FFSwiftTestTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FFSwiftTestTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		1B7DD8C02EE0F6D7003FEA0C /* FFSwiftTestUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FFSwiftTestUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		FF0000022EE0F6D6003FEA0C /* FormFitWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FormFitWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -43,6 +55,11 @@
 		1B7DD8C32EE0F6D7003FEA0C /* FFSwiftTestUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = FFSwiftTestUITests;
+			sourceTree = "<group>";
+		};
+		FF0000092EE0F6D6003FEA0C /* FormFitWatch */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = FormFitWatch;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -69,13 +86,35 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		FF0000072EE0F6D6003FEA0C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		FF00000C2EE0F6D6003FEA0C /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
+			dstSubfolderSpec = 16;
+			files = (
+				FF00000D2EE0F6D6003FEA0C /* FormFitWatch.app in Embed Watch Content */,
+			);
+			name = "Embed Watch Content";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXGroup section */
 		1B7DD8A02EE0F6D6003FEA0C = {
 			isa = PBXGroup;
 			children = (
 				1B7DD8AB2EE0F6D6003FEA0C /* FFSwiftTest */,
+				FF0000092EE0F6D6003FEA0C /* FormFitWatch */,
 				1B7DD8B92EE0F6D7003FEA0C /* FFSwiftTestTests */,
 				1B7DD8C32EE0F6D7003FEA0C /* FFSwiftTestUITests */,
 				1B7DD8AA2EE0F6D6003FEA0C /* Products */,
@@ -86,6 +125,7 @@
 			isa = PBXGroup;
 			children = (
 				1B7DD8A92EE0F6D6003FEA0C /* FFSwiftTest.app */,
+				FF0000022EE0F6D6003FEA0C /* FormFitWatch.app */,
 				1B7DD8B62EE0F6D7003FEA0C /* FFSwiftTestTests.xctest */,
 				1B7DD8C02EE0F6D7003FEA0C /* FFSwiftTestUITests.xctest */,
 			);
@@ -102,10 +142,12 @@
 				1B7DD8A52EE0F6D6003FEA0C /* Sources */,
 				1B7DD8A62EE0F6D6003FEA0C /* Frameworks */,
 				1B7DD8A72EE0F6D6003FEA0C /* Resources */,
+				FF00000C2EE0F6D6003FEA0C /* Embed Watch Content */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				FF00000B2EE0F6D6003FEA0C /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				1B7DD8AB2EE0F6D6003FEA0C /* FFSwiftTest */,
@@ -115,6 +157,28 @@
 			);
 			productName = FFSwiftTest;
 			productReference = 1B7DD8A92EE0F6D6003FEA0C /* FFSwiftTest.app */;
+			productType = "com.apple.product-type.application";
+		};
+		FF0000012EE0F6D6003FEA0C /* FormFitWatch */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = FF0000032EE0F6D6003FEA0C /* Build configuration list for PBXNativeTarget "FormFitWatch" */;
+			buildPhases = (
+				FF0000062EE0F6D6003FEA0C /* Sources */,
+				FF0000072EE0F6D6003FEA0C /* Frameworks */,
+				FF0000082EE0F6D6003FEA0C /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				FF0000092EE0F6D6003FEA0C /* FormFitWatch */,
+			);
+			name = FormFitWatch;
+			packageProductDependencies = (
+			);
+			productName = FormFitWatch;
+			productReference = FF0000022EE0F6D6003FEA0C /* FormFitWatch.app */;
 			productType = "com.apple.product-type.application";
 		};
 		1B7DD8B52EE0F6D7003FEA0C /* FFSwiftTestTests */ = {
@@ -184,6 +248,9 @@
 						CreatedOnToolsVersion = 26.0.1;
 						TestTargetID = 1B7DD8A82EE0F6D6003FEA0C;
 					};
+					FF0000012EE0F6D6003FEA0C = {
+						CreatedOnToolsVersion = 26.0.1;
+					};
 				};
 			};
 			buildConfigurationList = 1B7DD8A42EE0F6D6003FEA0C /* Build configuration list for PBXProject "FFSwiftTest" */;
@@ -201,6 +268,7 @@
 			projectRoot = "";
 			targets = (
 				1B7DD8A82EE0F6D6003FEA0C /* FFSwiftTest */,
+				FF0000012EE0F6D6003FEA0C /* FormFitWatch */,
 				1B7DD8B52EE0F6D7003FEA0C /* FFSwiftTestTests */,
 				1B7DD8BF2EE0F6D7003FEA0C /* FFSwiftTestUITests */,
 			);
@@ -223,6 +291,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		1B7DD8BE2EE0F6D7003FEA0C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		FF0000082EE0F6D6003FEA0C /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -253,6 +328,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		FF0000062EE0F6D6003FEA0C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -265,6 +347,11 @@
 			isa = PBXTargetDependency;
 			target = 1B7DD8A82EE0F6D6003FEA0C /* FFSwiftTest */;
 			targetProxy = 1B7DD8C12EE0F6D7003FEA0C /* PBXContainerItemProxy */;
+		};
+		FF00000B2EE0F6D6003FEA0C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = FF0000012EE0F6D6003FEA0C /* FormFitWatch */;
+			targetProxy = FF00000A2EE0F6D6003FEA0C /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -400,8 +487,10 @@
 				DEVELOPMENT_TEAM = 2AMJ55P8NJ;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UIFileSharingEnabled = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
@@ -432,8 +521,10 @@
 				DEVELOPMENT_TEAM = 2AMJ55P8NJ;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UIFileSharingEnabled = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
@@ -538,6 +629,56 @@
 			};
 			name = Release;
 		};
+		FF0000042EE0F6D6003FEA0C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 2AMJ55P8NJ;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_WKApplication = YES;
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = "FormFit.FFSwiftTest";
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "FormFit.FFSwiftTest.watchkitapp";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Debug;
+		};
+		FF0000052EE0F6D6003FEA0C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 2AMJ55P8NJ;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_WKApplication = YES;
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = "FormFit.FFSwiftTest";
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "FormFit.FFSwiftTest.watchkitapp";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -573,6 +714,15 @@
 			buildConfigurations = (
 				1B7DD8D12EE0F6D7003FEA0C /* Debug */,
 				1B7DD8D22EE0F6D7003FEA0C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		FF0000032EE0F6D6003FEA0C /* Build configuration list for PBXNativeTarget "FormFitWatch" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FF0000042EE0F6D6003FEA0C /* Debug */,
+				FF0000052EE0F6D6003FEA0C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

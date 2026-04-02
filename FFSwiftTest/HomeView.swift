@@ -4,12 +4,13 @@ import SwiftData
 struct HomeView: View {
     let primaryOrange = Color(red: 1.0, green: 0.42, blue: 0.21)
     @Environment(\.modelContext) private var modelContext
+    @Environment(PhoneConnectivityManager.self) private var connectivity
     @State private var workoutSessions: [WorkoutSessionSnapshot] = []
 
     private var summary: WorkoutSummarySnapshot {
         WorkoutSummaryBuilder.build(from: workoutSessions)
     }
-    
+
     var body: some View {
         NavigationView {
             ScrollView {
@@ -19,19 +20,19 @@ struct HomeView: View {
                         Image(systemName: "applewatch")
                             .foregroundColor(primaryOrange)
                             .font(.title2)
-                        
+
                         VStack(alignment: .leading, spacing: 4) {
                             Text("Apple Watch")
                                 .font(.headline)
-                            Text("Connected")
+                            Text(watchStatusText)
                                 .font(.caption)
                                 .foregroundColor(.gray)
                         }
-                        
+
                         Spacer()
-                        
+
                         Circle()
-                            .fill(Color.green)
+                            .fill(connectivity.isWatchReachable ? Color.green : Color.gray.opacity(0.4))
                             .frame(width: 12, height: 12)
                     }
                     .padding()
@@ -136,6 +137,12 @@ struct HomeView: View {
         }
     }
 
+    private var watchStatusText: String {
+        if connectivity.isWatchReachable { return "Reachable" }
+        if connectivity.isWatchPaired    { return "Paired — not reachable" }
+        return "Not connected"
+    }
+
     private func formattedProgress(_ progress: Int) -> String {
         progress > 0 ? "+\(progress)%" : "\(progress)%"
     }
@@ -237,6 +244,7 @@ private struct HomeViewPreview: View {
     var body: some View {
         HomeView()
             .modelContainer(previewContainer)
+            .environment(PhoneConnectivityManager())
     }
 
     private var previewContainer: ModelContainer {
