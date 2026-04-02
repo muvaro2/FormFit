@@ -1,0 +1,681 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		650C5F832F3740670007998C /* FormFitWatch Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 659D9C132E91F18A00FF386E /* FormFitWatch Watch App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		659D9C142E91F18A00FF386E /* FormFitWatch Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 659D9C132E91F18A00FF386E /* FormFitWatch Watch App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		650C5F842F3740670007998C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 659D9C072E91F18A00FF386E /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 659D9C122E91F18A00FF386E;
+			remoteInfo = "FormFitWatch Watch App";
+		};
+		650C5F872F3740740007998C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 659D9C072E91F18A00FF386E /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 659D9C122E91F18A00FF386E;
+			remoteInfo = "FormFitWatch Watch App";
+		};
+		650C5F892F3740880007998C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 659D9C072E91F18A00FF386E /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 659D9C122E91F18A00FF386E;
+			remoteInfo = "FormFitWatch Watch App";
+		};
+		659D9C152E91F18A00FF386E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 659D9C072E91F18A00FF386E /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 659D9C122E91F18A00FF386E;
+			remoteInfo = "FormFitWatch Watch App";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		650C5F862F3740670007998C /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
+			dstSubfolderSpec = 16;
+			files = (
+				650C5F832F3740670007998C /* FormFitWatch Watch App.app in Embed Watch Content */,
+			);
+			name = "Embed Watch Content";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		659D9C232E91F18B00FF386E /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
+			dstSubfolderSpec = 16;
+			files = (
+				659D9C142E91F18A00FF386E /* FormFitWatch Watch App.app in Embed Watch Content */,
+			);
+			name = "Embed Watch Content";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		650C5F712F36AA960007998C /* FormFitPhone.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FormFitPhone.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		659D9C0D2E91F18A00FF386E /* FormFitWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FormFitWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		659D9C132E91F18A00FF386E /* FormFitWatch Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "FormFitWatch Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		650C5F8C2F3747DB0007998C /* Exceptions for "FormFitPhone" folder in "FormFitPhone" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 650C5F702F36AA960007998C /* FormFitPhone */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		650C5F722F36AA960007998C /* FormFitPhone */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				650C5F8C2F3747DB0007998C /* Exceptions for "FormFitPhone" folder in "FormFitPhone" target */,
+			);
+			path = FormFitPhone;
+			sourceTree = "<group>";
+		};
+		659D9C172E91F18A00FF386E /* FormFitWatch Watch App */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "FormFitWatch Watch App";
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		650C5F6E2F36AA960007998C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		659D9C102E91F18A00FF386E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		650C5F822F3740670007998C /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		659D9C062E91F18900FF386E = {
+			isa = PBXGroup;
+			children = (
+				659D9C172E91F18A00FF386E /* FormFitWatch Watch App */,
+				650C5F722F36AA960007998C /* FormFitPhone */,
+				650C5F822F3740670007998C /* Frameworks */,
+				659D9C0E2E91F18A00FF386E /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		659D9C0E2E91F18A00FF386E /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				659D9C0D2E91F18A00FF386E /* FormFitWatch.app */,
+				659D9C132E91F18A00FF386E /* FormFitWatch Watch App.app */,
+				650C5F712F36AA960007998C /* FormFitPhone.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		650C5F702F36AA960007998C /* FormFitPhone */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 650C5F7B2F36AA980007998C /* Build configuration list for PBXNativeTarget "FormFitPhone" */;
+			buildPhases = (
+				650C5F6D2F36AA960007998C /* Sources */,
+				650C5F6E2F36AA960007998C /* Frameworks */,
+				650C5F6F2F36AA960007998C /* Resources */,
+				650C5F862F3740670007998C /* Embed Watch Content */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				650C5F852F3740670007998C /* PBXTargetDependency */,
+				650C5F882F3740740007998C /* PBXTargetDependency */,
+				650C5F8A2F3740880007998C /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				650C5F722F36AA960007998C /* FormFitPhone */,
+			);
+			name = FormFitPhone;
+			packageProductDependencies = (
+			);
+			productName = FormFitPhone;
+			productReference = 650C5F712F36AA960007998C /* FormFitPhone.app */;
+			productType = "com.apple.product-type.application";
+		};
+		659D9C0C2E91F18A00FF386E /* FormFitWatch */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 659D9C242E91F18B00FF386E /* Build configuration list for PBXNativeTarget "FormFitWatch" */;
+			buildPhases = (
+				659D9C0B2E91F18A00FF386E /* Resources */,
+				659D9C232E91F18B00FF386E /* Embed Watch Content */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				659D9C162E91F18A00FF386E /* PBXTargetDependency */,
+			);
+			name = FormFitWatch;
+			packageProductDependencies = (
+			);
+			productName = FormFitWatch;
+			productReference = 659D9C0D2E91F18A00FF386E /* FormFitWatch.app */;
+			productType = "com.apple.product-type.application.watchapp2-container";
+		};
+		659D9C122E91F18A00FF386E /* FormFitWatch Watch App */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 659D9C202E91F18B00FF386E /* Build configuration list for PBXNativeTarget "FormFitWatch Watch App" */;
+			buildPhases = (
+				659D9C0F2E91F18A00FF386E /* Sources */,
+				659D9C102E91F18A00FF386E /* Frameworks */,
+				659D9C112E91F18A00FF386E /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				659D9C172E91F18A00FF386E /* FormFitWatch Watch App */,
+			);
+			name = "FormFitWatch Watch App";
+			packageProductDependencies = (
+			);
+			productName = "FormFitWatch Watch App";
+			productReference = 659D9C132E91F18A00FF386E /* FormFitWatch Watch App.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		659D9C072E91F18A00FF386E /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2610;
+				LastUpgradeCheck = 2610;
+				TargetAttributes = {
+					650C5F702F36AA960007998C = {
+						CreatedOnToolsVersion = 26.1.1;
+					};
+					659D9C0C2E91F18A00FF386E = {
+						CreatedOnToolsVersion = 26.0.1;
+						LastSwiftMigration = 2610;
+					};
+					659D9C122E91F18A00FF386E = {
+						CreatedOnToolsVersion = 26.0.1;
+					};
+				};
+			};
+			buildConfigurationList = 659D9C0A2E91F18A00FF386E /* Build configuration list for PBXProject "FormFitWatch" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 659D9C062E91F18900FF386E;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 659D9C0E2E91F18A00FF386E /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				659D9C0C2E91F18A00FF386E /* FormFitWatch */,
+				659D9C122E91F18A00FF386E /* FormFitWatch Watch App */,
+				650C5F702F36AA960007998C /* FormFitPhone */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		650C5F6F2F36AA960007998C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		659D9C0B2E91F18A00FF386E /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		659D9C112E91F18A00FF386E /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		650C5F6D2F36AA960007998C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		659D9C0F2E91F18A00FF386E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		650C5F852F3740670007998C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 659D9C122E91F18A00FF386E /* FormFitWatch Watch App */;
+			targetProxy = 650C5F842F3740670007998C /* PBXContainerItemProxy */;
+		};
+		650C5F882F3740740007998C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 659D9C122E91F18A00FF386E /* FormFitWatch Watch App */;
+			targetProxy = 650C5F872F3740740007998C /* PBXContainerItemProxy */;
+		};
+		650C5F8A2F3740880007998C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 659D9C122E91F18A00FF386E /* FormFitWatch Watch App */;
+			targetProxy = 650C5F892F3740880007998C /* PBXContainerItemProxy */;
+		};
+		659D9C162E91F18A00FF386E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 659D9C122E91F18A00FF386E /* FormFitWatch Watch App */;
+			targetProxy = 659D9C152E91F18A00FF386E /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		650C5F792F36AA980007998C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 6Y5A852Q32;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = FormFitPhone/Info.plist;
+				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.6;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.saavankiran.FormFitPhone;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		650C5F7A2F36AA980007998C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 6Y5A852Q32;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = FormFitPhone/Info.plist;
+				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.6;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.saavankiran.FormFitPhone;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		659D9C1E2E91F18B00FF386E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = 6Y5A852Q32;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		659D9C1F2E91F18B00FF386E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = 6Y5A852Q32;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		659D9C212E91F18B00FF386E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "FormFitWatch Watch App/FormFitWatch Watch App.entitlements";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 6Y5A852Q32;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "FormFitWatch-Watch-App-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = FormFitWatch;
+				INFOPLIST_KEY_NSMotionUsageDescription = "Formfit uses motion sensors to analyze exercise form.";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.saavankiran.FormFitPhone;
+				INFOPLIST_KEY_WKRunsIndependentlyOfCompanionApp = NO;
+				INFOPLIST_KEY_WKWatchOnly = NO;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.saavankiran.FormFitPhone.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 11.6;
+			};
+			name = Debug;
+		};
+		659D9C222E91F18B00FF386E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "FormFitWatch Watch App/FormFitWatch Watch App.entitlements";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 6Y5A852Q32;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "FormFitWatch-Watch-App-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = FormFitWatch;
+				INFOPLIST_KEY_NSMotionUsageDescription = "Formfit uses motion sensors to analyze exercise form.";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.saavankiran.FormFitPhone;
+				INFOPLIST_KEY_WKRunsIndependentlyOfCompanionApp = NO;
+				INFOPLIST_KEY_WKWatchOnly = NO;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.saavankiran.FormFitPhone.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				VALIDATE_PRODUCT = YES;
+				WATCHOS_DEPLOYMENT_TARGET = 11.6;
+			};
+			name = Release;
+		};
+		659D9C252E91F18B00FF386E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 6Y5A852Q32;
+				INFOPLIST_KEY_CFBundleDisplayName = FormFitWatch;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.saavankiran.FormFitWatch;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "FormFitWatch Watch App/FormFitWatch-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		659D9C262E91F18B00FF386E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 6Y5A852Q32;
+				INFOPLIST_KEY_CFBundleDisplayName = FormFitWatch;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.saavankiran.FormFitWatch;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "FormFitWatch Watch App/FormFitWatch-Bridging-Header.h";
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		650C5F7B2F36AA980007998C /* Build configuration list for PBXNativeTarget "FormFitPhone" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				650C5F792F36AA980007998C /* Debug */,
+				650C5F7A2F36AA980007998C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		659D9C0A2E91F18A00FF386E /* Build configuration list for PBXProject "FormFitWatch" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				659D9C1E2E91F18B00FF386E /* Debug */,
+				659D9C1F2E91F18B00FF386E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		659D9C202E91F18B00FF386E /* Build configuration list for PBXNativeTarget "FormFitWatch Watch App" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				659D9C212E91F18B00FF386E /* Debug */,
+				659D9C222E91F18B00FF386E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		659D9C242E91F18B00FF386E /* Build configuration list for PBXNativeTarget "FormFitWatch" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				659D9C252E91F18B00FF386E /* Debug */,
+				659D9C262E91F18B00FF386E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 659D9C072E91F18A00FF386E /* Project object */;
+}
