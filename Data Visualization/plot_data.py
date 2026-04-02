@@ -56,7 +56,14 @@ def split_reps(
     # "U" shaped curves in roll, so we hard‑code detection on its minima.
     dominant = "roll"
     axis_values = _smoothed(values[dominant], window=5)
-    total_range = _value_range(axis_values)
+
+    # Use a percentile-based range so EOF noise spikes don't inflate
+    # min_amplitude and cause legitimate reps to fail the threshold.
+    sorted_vals = sorted(axis_values)
+    _n = len(sorted_vals)
+    robust_lo = sorted_vals[max(0, int(_n * 0.02))]
+    robust_hi = sorted_vals[min(_n - 1, int(_n * 0.98))]
+    total_range = max(robust_hi - robust_lo, _value_range(axis_values) * 0.3)
 
     if len(axis_values) < MIN_REP_SAMPLES or total_range <= 0:
         return [repetition]
@@ -149,8 +156,8 @@ def split_reps(
     # which happens when our segmentation created two pieces around the same
     # physical valley/peak. True neighbouring reps have a noticeably larger
     # time gap between them.
-    ROLL_GAP_THRESHOLD = 0.30   # radians between boundaries (still require similarity)
-    TIME_GAP_THRESHOLD = 0.05   # seconds between boundaries (essentially same instant)
+    ROLL_GAP_THRESHOLD = 0.40   # radians between boundaries
+    TIME_GAP_THRESHOLD = 0.50   # seconds — up to 0.50 s gap can be an over-split artifact
     # Only merge when we are far away from the neutral/zero roll position.
     # True rep boundaries tend to pass near roll ~= 0, while mid‑rep splits
     # happen down in the valley where roll is strongly negative.
@@ -179,6 +186,21 @@ def split_reps(
             continue
 
         merged.append(rep)
+
+    # ------------------------------------------------------------------
+    # Filter out EOF noise reps: a real rep's valley must be meaningfully
+    # below where the rep started. If the valley is at (or near) the very
+    # first sample, it is almost certainly an upward drift artifact, not a
+    # genuine external-rotation repetition.
+    # ------------------------------------------------------------------
+    MIN_REP_DEPTH = 0.15  # radians — valley must drop this far below rep start
+    merged = [
+        r for r in merged
+        if (r.samples[0].roll - min(s.roll for s in r.samples)) >= MIN_REP_DEPTH
+    ]
+
+    if not merged:
+        return [repetition]
 
     return merged
 
@@ -250,21 +272,39 @@ def _segments_between_anchors(
     values: list[float],
     min_amplitude: float,
 ) -> list[Segment]:
+    """Build rep segments between anchor peaks.
+
+    For each left anchor we try the next few right anchors in order
+    (consecutive first, then up to 3 peaks ahead).  This lets the algorithm
+    skip intermediate peaks that are inside a valley and would produce a
+    misleadingly small baseline, so the real rep is still detected.
+    """
     if len(anchors) < 2:
         return []
     segments: list[Segment] = []
-    for i in range(len(anchors) - 1):
-        start, end = anchors[i], anchors[i + 1]
-        if end <= start + 1:
-            continue
-        inside = [p for p in opposite if start < p < end]
-        if not inside:
-            continue
-        primary = max(inside, key=lambda p: abs(values[p] - values[start]))
-        baseline  = (values[start] + values[end]) / 2
-        amplitude = abs(values[primary] - baseline)
-        if amplitude >= min_amplitude:
-            segments.append((start, primary, end))
+    i = 0
+    while i < len(anchors) - 1:
+        start = anchors[i]
+        found = False
+        # Try anchors[i+1], anchors[i+2], anchors[i+3] as the right endpoint.
+        # Stop as soon as we find a segment that passes the amplitude check.
+        for j in range(i + 1, min(i + 4, len(anchors))):
+            end = anchors[j]
+            if end <= start + 1:
+                continue
+            inside = [p for p in opposite if start < p < end]
+            if not inside:
+                continue
+            primary = max(inside, key=lambda p: abs(values[p] - values[start]))
+            baseline  = (values[start] + values[end]) / 2
+            amplitude = abs(values[primary] - baseline)
+            if amplitude >= min_amplitude:
+                segments.append((start, primary, end))
+                i = j   # advance left anchor to the right endpoint we just used
+                found = True
+                break
+        if not found:
+            i += 1
     return segments
 
 
@@ -286,7 +326,7 @@ def _trim_segment(segment: Segment, values: list[float]) -> tuple[int, int]:
 # Load data & run split_reps
 # ---------------------------------------------------------------------------
 
-df = pd.read_csv("data/sessions/formfit-20260320-185959-10ms.csv")
+df = pd.read_csv("data/sessions/formfit_data2.csv")
 
 samples = [
     Sample(roll=row.roll, pitch=row.pitch, yaw=row.yaw, t=row.t)
