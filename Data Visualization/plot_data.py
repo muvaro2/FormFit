@@ -389,12 +389,9 @@ def _trim_tail_until_accel_quiet(
 def _parse_cli() -> tuple[str, int]:
     """argv: plot_data.py <csv_path> [max_reps]. max_reps defaults to DEFAULT_MAX_REPS."""
     if len(sys.argv) < 2:
-        print(
-            "Usage: python plot_data.py <csv_path> [max_reps]",
-            file=sys.stderr,
-        )
-        sys.exit(2)
-    csv_path = sys.argv[1]
+        csv_path = "data/sessions/formfit_data2.csv"
+    else:
+        csv_path = sys.argv[1]
     if len(sys.argv) >= 3:
         try:
             n = int(sys.argv[2])
