@@ -178,16 +178,17 @@ def split_reps(
         roll_gap = abs(rep.samples[0].roll - prev.samples[-1].roll)
 
         if t_gap <= TIME_GAP_THRESHOLD and roll_gap <= ROLL_GAP_THRESHOLD:
-            # Do not merge if the shared boundary is close to neutral roll
-            # (near 0). That indicates a genuine transition between two reps.
+            # Only merge when the shared boundary is deep in the valley
+            # (strongly negative roll). True inter-rep transitions happen near
+            # neutral roll (positive/near-zero), so a positive boundary_roll
+            # means these are two distinct reps, not an over-split.
             boundary_roll = 0.5 * (prev.samples[-1].roll + rep.samples[0].roll)
-            if abs(boundary_roll) < ROLL_CENTER_THRESHOLD:
+            if boundary_roll > -ROLL_CENTER_THRESHOLD:
                 merged.append(rep)
                 continue
 
-            # Extremely small time gap and similar roll at the boundary:
-            # treat these as two fragments of the same physical rep and
-            # stitch them together.
+            # Boundary is deep in the valley — treat as two fragments of the
+            # same physical rep and stitch them together.
             merged[-1] = Repetition(
                 samples=prev.samples + rep.samples,
                 t=prev.t,
@@ -210,6 +211,23 @@ def split_reps(
 
     if not merged:
         return [repetition]
+
+    # ------------------------------------------------------------------
+    # Detect end-of-set noise: after a long rest (> 3 s gap) the user may
+    # make incidental movements that look rep-shaped but aren't.  The tell
+    # is that the arm doesn't return to its starting position — the rep's
+    # end roll differs significantly from its start roll.  When we see a
+    # rep with both a large gap before it AND high roll drift, the exercise
+    # set has ended: drop that rep and everything after it.
+    # ------------------------------------------------------------------
+    NOISE_GAP_THRESHOLD   = 3.0   # seconds — unusually long rest
+    NOISE_DRIFT_THRESHOLD = 0.40  # radians — arm didn't return to start
+    for idx in range(1, len(merged)):
+        gap   = merged[idx].samples[0].t - merged[idx - 1].samples[-1].t
+        drift = abs(merged[idx].samples[-1].roll - merged[idx].samples[0].roll)
+        if gap > NOISE_GAP_THRESHOLD and drift > NOISE_DRIFT_THRESHOLD:
+            merged = merged[:idx]
+            break
 
     if max_reps > 0:
         return merged[:max_reps]
