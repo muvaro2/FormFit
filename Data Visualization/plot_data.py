@@ -146,8 +146,6 @@ def split_reps(
                 t=repetition.t + timedelta(seconds=dt),
             )
         )
-        if max_reps > 0 and len(result) >= max_reps:
-            break
 
     # If no valid segments, fall back to a single unsplit repetition.
     if not result:
@@ -388,24 +386,34 @@ def _trim_tail_until_accel_quiet(
 # ---------------------------------------------------------------------------
 
 
-def _cli_max_reps() -> int:
-    """Optional argv[1]: max reps to detect (default DEFAULT_MAX_REPS)."""
-    if len(sys.argv) >= 2:
+def _parse_cli() -> tuple[str, int]:
+    """argv: plot_data.py <csv_path> [max_reps]. max_reps defaults to DEFAULT_MAX_REPS."""
+    if len(sys.argv) < 2:
+        print(
+            "Usage: python plot_data.py <csv_path> [max_reps]",
+            file=sys.stderr,
+        )
+        sys.exit(2)
+    csv_path = sys.argv[1]
+    if len(sys.argv) >= 3:
         try:
-            n = int(sys.argv[1])
+            n = int(sys.argv[2])
         except ValueError:
-            print("Usage: python plot_data.py [max_reps]", file=sys.stderr)
+            print(
+                "Usage: python plot_data.py <csv_path> [max_reps]",
+                file=sys.stderr,
+            )
             sys.exit(2)
         if n < 1:
             print("max_reps must be >= 1", file=sys.stderr)
             sys.exit(2)
-        return n
-    return DEFAULT_MAX_REPS
+        return csv_path, n
+    return csv_path, DEFAULT_MAX_REPS
 
 
-_MAX_REPS = _cli_max_reps()
+_CSV_PATH, _MAX_REPS = _parse_cli()
 
-df = pd.read_csv("data/sessions/formfit_data2.csv")
+df = pd.read_csv(_CSV_PATH)
 df = _trim_tail_until_accel_quiet(df)
 
 samples = [
@@ -556,7 +564,9 @@ axs[2].legend(
     fontsize=7,
 )
 
+import os as _os
+_plot_name = _os.path.splitext(_os.path.basename(_CSV_PATH))[0] + "_plot.png"
 plt.suptitle(f"FormFit Session — {len(reps)} Rep(s) Detected", fontweight="bold")
 plt.tight_layout()
-plt.savefig("formfit_plot.png", dpi=150)
+plt.savefig(_plot_name, dpi=150)
 plt.show()
