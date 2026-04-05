@@ -3,11 +3,56 @@ import SwiftData
 
 struct WorkoutView: View {
     @State private var showFeedbackExpanded = false
+    @State private var showGraphs = false
     @Environment(\.dismiss) private var dismiss
     @Query(sort: \WorkoutSession.workoutDate) private var storedSessions: [WorkoutSession]
 
     private var latestSession: WorkoutSession? {
         storedSessions.max(by: { $0.workoutDate < $1.workoutDate })
+    }
+
+    private var sortedRepetitions: [WorkoutRepetition] {
+        guard let latestSession else { return [] }
+        return latestSession.repetitions.sorted {
+            if $0.index == $1.index {
+                return $0.repetitionDate < $1.repetitionDate
+            }
+            return $0.index < $1.index
+        }
+    }
+
+    private var averageRangeOfMotion: Double? {
+        let values = sortedRepetitions.compactMap(\.rangeOfMotion)
+        guard !values.isEmpty else { return nil }
+        return values.reduce(0, +) / Double(values.count)
+    }
+
+    private var averageConcentricTime: Double? {
+        let values = sortedRepetitions.compactMap(\.concentricTime)
+        guard !values.isEmpty else { return nil }
+        return values.reduce(0, +) / Double(values.count)
+    }
+
+    private var averageEccentricTime: Double? {
+        let values = sortedRepetitions.compactMap(\.eccentricTime)
+        guard !values.isEmpty else { return nil }
+        return values.reduce(0, +) / Double(values.count)
+    }
+
+    private var averageEccentricScore: EccentricScore? {
+        averageEccentricTime.map(eccentricScore(duration:))
+    }
+
+    private var repetitionInsights: [RepetitionInsight] {
+        sortedRepetitions.map { repetition in
+            RepetitionInsight(
+                id: repetition.id,
+                index: repetition.index + 1,
+                rangeOfMotion: repetition.rangeOfMotion,
+                eccentricTime: repetition.eccentricTime,
+                concentricTime: repetition.concentricTime
+            )
+        }
     }
 
     private var scoreValue: String {
@@ -29,6 +74,10 @@ struct WorkoutView: View {
     private var coachMessage: String {
         guard let latestSession else {
             return "No imported workout yet. Finish a watch collection and save it to send the CSV here."
+        }
+
+        if let averageRangeOfMotion, let averageEccentricTime, let averageEccentricScore {
+            return "Detected \(latestSession.repetitionCount) reps with an average ROM of \(Int(averageRangeOfMotion.rounded())) degrees. Your \(averageEccentricScore.label.lowercased()) is averaging \(averageEccentricTime.formatted(.number.precision(.fractionLength(1)))) seconds right now."
         }
 
         if latestSession.formScore > 0 {
@@ -133,7 +182,59 @@ struct WorkoutView: View {
                         )
                     }
 
+                    if let averageRangeOfMotion, let averageEccentricTime {
+                        HStack(spacing: 20) {
+                            MetricView(
+                                icon: "ruler",
+                                value: "\(Int(averageRangeOfMotion.rounded()))°",
+                                label: "Avg ROM",
+                                color: FormFitTheme.warning
+                            )
+                            MetricView(
+                                icon: "arrow.down.circle",
+                                value: "\(averageConcentricTime?.formatted(.number.precision(.fractionLength(1))) ?? "--")s",
+                                label: "Concentric",
+                                color: FormFitTheme.info
+                            )
+                            MetricView(
+                                icon: "arrow.up.circle",
+                                value: "\(averageEccentricTime.formatted(.number.precision(.fractionLength(1))))s",
+                                label: "Eccentric",
+                                color: color(for: averageEccentricScore)
+                            )
+                        }
+                    }
+
+                    if !repetitionInsights.isEmpty {
+                        VStack(alignment: .leading, spacing: 14) {
+                            Text("Rep Split")
+                                .font(.headline)
+                                .foregroundStyle(FormFitTheme.textPrimary)
+
+                            ScrollView(.horizontal, showsIndicators: false) {
+                                HStack(spacing: 12) {
+                                    ForEach(repetitionInsights) { repetition in
+                                        RepetitionInsightCard(repetition: repetition)
+                                    }
+                                }
+                            }
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .formFitCard()
+                    }
+
                     Spacer()
+
+                    if let latestSession, latestSession.sampleCount > 0 {
+                        Button(action: {
+                            showGraphs = true
+                        }) {
+                            Label("See Graphs", systemImage: "chart.xyaxis.line")
+                                .font(.headline)
+                                .formFitSecondaryButton(accent: FormFitTheme.orange)
+                        }
+                        .padding(.horizontal)
+                    }
 
                     Button(action: {
                         dismiss()
@@ -186,6 +287,24 @@ struct WorkoutView: View {
                 }
             }
         }
+        .fullScreenCover(isPresented: $showGraphs) {
+            if let latestSession {
+                WorkoutGraphsView(session: latestSession)
+            }
+        }
+    }
+
+    private func color(for score: EccentricScore?) -> Color {
+        switch score {
+        case .good:
+            return FormFitTheme.success
+        case .slightlyFast:
+            return FormFitTheme.warning
+        case .tooFast:
+            return FormFitTheme.danger
+        case nil:
+            return FormFitTheme.textSecondary
+        }
     }
 }
 
@@ -212,6 +331,61 @@ struct MetricView: View {
         }
         .frame(maxWidth: .infinity)
         .formFitCard()
+    }
+}
+
+private struct RepetitionInsight: Identifiable {
+    let id: UUID
+    let index: Int
+    let rangeOfMotion: Double?
+    let eccentricTime: Double?
+    let concentricTime: Double?
+}
+
+private struct RepetitionInsightCard: View {
+    let repetition: RepetitionInsight
+
+    private var eccentricStatus: EccentricScore? {
+        repetition.eccentricTime.map(eccentricScore(duration:))
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Rep \(repetition.index)")
+                .font(.headline)
+                .foregroundStyle(FormFitTheme.textPrimary)
+
+            Text(repetition.rangeOfMotion.map { "\($0.formatted(.number.precision(.fractionLength(0))))° ROM" } ?? "--")
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(FormFitTheme.orange)
+
+            Text(repetition.eccentricTime.map { "\($0.formatted(.number.precision(.fractionLength(1))))s eccentric" } ?? "Eccentric pending")
+                .font(.caption)
+                .foregroundStyle(FormFitTheme.textSecondary)
+
+            Text(repetition.concentricTime.map { "\($0.formatted(.number.precision(.fractionLength(1))))s concentric" } ?? "Concentric pending")
+                .font(.caption)
+                .foregroundStyle(FormFitTheme.textSecondary)
+
+            if let eccentricStatus {
+                Text(eccentricStatus.label)
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(color(for: eccentricStatus))
+            }
+        }
+        .frame(width: 170, alignment: .leading)
+        .formFitCard()
+    }
+
+    private func color(for score: EccentricScore) -> Color {
+        switch score {
+        case .good:
+            return FormFitTheme.success
+        case .slightlyFast:
+            return FormFitTheme.warning
+        case .tooFast:
+            return FormFitTheme.danger
+        }
     }
 }
 

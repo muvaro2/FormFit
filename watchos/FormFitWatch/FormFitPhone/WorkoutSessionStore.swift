@@ -265,7 +265,6 @@ enum WorkoutSessionImporter {
         let durationSeconds = repetitions
             .flatMap(\.samples)
             .compactMap(\.relativeTime)
-            .map(Double.init)
             .max() ?? 0
 
         let session = WorkoutSession(
@@ -284,9 +283,9 @@ enum WorkoutSessionImporter {
         session.repetitions = repetitions.enumerated().map { index, repetition in
             let storedRepetition = WorkoutRepetition(
                 index: index,
-                rangeOfMotion: repetition.rangeOfMotion.map(Double.init),
-                concentricTime: repetition.concentricTime.map(Double.init),
-                eccentricTime: repetition.eccentricTime.map(Double.init),
+                rangeOfMotion: repetition.rangeOfMotion,
+                concentricTime: repetition.concentricTime,
+                eccentricTime: repetition.eccentricTime,
                 repetitionDate: repetition.timestamp,
                 session: session
             )
@@ -295,15 +294,15 @@ enum WorkoutSessionImporter {
                 WorkoutMotionSample(
                     index: sampleIndex,
                     relativeTime: Double(sample.relativeTime ?? 0),
-                    accelerationX: Double(sample.accelerationX),
-                    accelerationY: Double(sample.accelerationY),
-                    accelerationZ: Double(sample.accelerationZ),
-                    gyroX: Double(sample.gyroX),
-                    gyroY: Double(sample.gyroY),
-                    gyroZ: Double(sample.gyroZ),
-                    roll: Double(sample.roll),
-                    pitch: Double(sample.pitch),
-                    yaw: Double(sample.yaw),
+                    accelerationX: sample.accelerationX,
+                    accelerationY: sample.accelerationY,
+                    accelerationZ: sample.accelerationZ,
+                    gyroX: sample.gyroX,
+                    gyroY: sample.gyroY,
+                    gyroZ: sample.gyroZ,
+                    roll: sample.roll,
+                    pitch: sample.pitch,
+                    yaw: sample.yaw,
                     repetition: storedRepetition
                 )
             }
@@ -319,7 +318,6 @@ enum WorkoutSessionImporter {
         let timestamps = activitySet.repetitions
             .flatMap(\.samples)
             .compactMap(\.relativeTime)
-            .map(Double.init)
             .sorted()
 
         guard timestamps.count >= 3 else { return nil }
@@ -347,9 +345,31 @@ enum WorkoutSessionImporter {
         let romValues = repetitions.compactMap(\.rangeOfMotion)
         guard !romValues.isEmpty else { return 0 }
 
-        // Temporary placeholder until the Core ML score replaces this pipeline.
-        let averageROM = romValues.reduce(0, +) / Float(romValues.count)
-        return max(0, min(100, Int(averageROM.rounded())))
+        let averageROM = romValues.reduce(0, +) / Double(romValues.count)
+        let normalizedROMScore = max(0, min(100, (averageROM / 90.0) * 100.0))
+
+        let eccentricScores = repetitions
+            .compactMap(\.eccentricTime)
+            .map(eccentricScore(duration:))
+
+        guard !eccentricScores.isEmpty else {
+            return Int(normalizedROMScore.rounded())
+        }
+
+        let normalizedTempoScore = eccentricScores.reduce(0.0) { partialResult, score in
+            switch score {
+            case .good:
+                return partialResult + 100
+            case .slightlyFast:
+                return partialResult + 75
+            case .tooFast:
+                return partialResult + 45
+            }
+        } / Double(eccentricScores.count)
+
+        // Temporary preview score until the Core ML pipeline replaces it.
+        let combinedScore = (normalizedROMScore * 0.65) + (normalizedTempoScore * 0.35)
+        return max(0, min(100, Int(combinedScore.rounded())))
     }
 }
 
