@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import sys
+
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
@@ -16,6 +18,7 @@ MIN_REP_SAMPLES: int = 5
 ACCEL_TAIL_MAG_THRESHOLD: float = 0.5  # per sample: |ax|,|ay|,|az| each below this
 ACCEL_TAIL_QUIET_RUN_SAMPLES: int = 50  # consecutive quiet samples required at end of kept data
 ACCEL_TAIL_MAX_TRIM_SAMPLES: int = 300
+DEFAULT_MAX_REPS: int = 10
 
 # ---------------------------------------------------------------------------
 # Data classes
@@ -49,6 +52,7 @@ Segment = tuple[int, int, int]  # (start, peak, end)
 def split_reps(
     repetition: Repetition,
     sample_rate: float = DEFAULT_SAMPLE_RATE,
+    max_reps: int = DEFAULT_MAX_REPS,
 ) -> list[Repetition]:
     values = _orientation_values(repetition.samples)
 
@@ -142,6 +146,8 @@ def split_reps(
                 t=repetition.t + timedelta(seconds=dt),
             )
         )
+        if max_reps > 0 and len(result) >= max_reps:
+            break
 
     # If no valid segments, fall back to a single unsplit repetition.
     if not result:
@@ -205,6 +211,8 @@ def split_reps(
     if not merged:
         return [repetition]
 
+    if max_reps > 0:
+        return merged[:max_reps]
     return merged
 
 
@@ -361,6 +369,24 @@ def _trim_tail_until_accel_quiet(
 # Load data & run split_reps
 # ---------------------------------------------------------------------------
 
+
+def _cli_max_reps() -> int:
+    """Optional argv[1]: max reps to detect (default DEFAULT_MAX_REPS)."""
+    if len(sys.argv) >= 2:
+        try:
+            n = int(sys.argv[1])
+        except ValueError:
+            print("Usage: python plot_data.py [max_reps]", file=sys.stderr)
+            sys.exit(2)
+        if n < 1:
+            print("max_reps must be >= 1", file=sys.stderr)
+            sys.exit(2)
+        return n
+    return DEFAULT_MAX_REPS
+
+
+_MAX_REPS = _cli_max_reps()
+
 df = pd.read_csv("data/sessions/formfit_data2.csv")
 df = _trim_tail_until_accel_quiet(df)
 
@@ -370,7 +396,7 @@ samples = [
 ]
 
 full_rep = Repetition(samples=samples)
-reps = split_reps(full_rep, sample_rate=DEFAULT_SAMPLE_RATE)
+reps = split_reps(full_rep, sample_rate=DEFAULT_SAMPLE_RATE, max_reps=_MAX_REPS)
 
 print(f"Detected {len(reps)} rep(s)")
 for i, r in enumerate(reps):

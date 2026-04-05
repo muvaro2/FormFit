@@ -7,6 +7,7 @@ let minRepSamples: Int = 5
 let accelTailMagThreshold: Double = 0.5
 let accelTailQuietRunSamples: Int = 50
 let accelTailMaxTrimSamples: Int = 300
+let defaultMaxRepsToDetect: Int = 10
 
 // MARK: - Data structures
 
@@ -158,7 +159,12 @@ private func splitCSVLine(_ line: String) -> [String] {
     }
 }
 
-func analyzeFormFitCSV(at url: URL, sampleRate: Double = defaultSampleRate, sessionStart: Date = Date()) throws -> FormFitCSVAnalysis {
+func analyzeFormFitCSV(
+    at url: URL,
+    sampleRate: Double = defaultSampleRate,
+    sessionStart: Date = Date(),
+    maxRepsToDetect: Int = defaultMaxRepsToDetect
+) throws -> FormFitCSVAnalysis {
     let text: String
     do {
         text = try String(contentsOf: url, encoding: .utf8)
@@ -179,7 +185,7 @@ func analyzeFormFitCSV(at url: URL, sampleRate: Double = defaultSampleRate, sess
         eccentricTime: nil,
         t: sessionStart
     )
-    let reps = splitReps(fullRep, sampleRate: sampleRate)
+    let reps = splitReps(fullRep, sampleRate: sampleRate, maxRepsToDetect: maxRepsToDetect)
 
     return FormFitCSVAnalysis(trimmedRows: rows, repetitions: reps)
 }
@@ -234,7 +240,11 @@ private struct OrientationValues {
 
 private typealias Segment = (start: Int, peak: Int, end: Int)
 
-func splitReps(_ repetition: Repetition, sampleRate: Double = defaultSampleRate) -> [Repetition] {
+func splitReps(
+    _ repetition: Repetition,
+    sampleRate: Double = defaultSampleRate,
+    maxRepsToDetect: Int = defaultMaxRepsToDetect
+) -> [Repetition] {
     let values = orientationValues(repetition.samples)
 
     if repetition.samples.count < minRepSamples {
@@ -322,6 +332,9 @@ func splitReps(_ repetition: Repetition, sampleRate: Double = defaultSampleRate)
                 t: repetition.t.addingTimeInterval(dt)
             )
         )
+        if maxRepsToDetect > 0 && result.count >= maxRepsToDetect {
+            break
+        }
     }
 
     if result.isEmpty {
@@ -369,6 +382,9 @@ func splitReps(_ repetition: Repetition, sampleRate: Double = defaultSampleRate)
         return [repetition]
     }
 
+    if maxRepsToDetect > 0 {
+        return Array(merged.prefix(maxRepsToDetect))
+    }
     return merged
 }
 
