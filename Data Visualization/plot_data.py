@@ -13,6 +13,9 @@ from typing import Optional
 
 DEFAULT_SAMPLE_RATE: float = 100.0   # ~100 Hz based on the CSV timestamps
 MIN_REP_SAMPLES: int = 5
+ACCEL_TAIL_MAG_THRESHOLD: float = 0.5  # per sample: |ax|,|ay|,|az| each below this
+ACCEL_TAIL_QUIET_RUN_SAMPLES: int = 50  # consecutive quiet samples required at end of kept data
+ACCEL_TAIL_MAX_TRIM_SAMPLES: int = 300
 
 # ---------------------------------------------------------------------------
 # Data classes
@@ -322,11 +325,44 @@ def _trim_segment(segment: Segment, values: list[float]) -> tuple[int, int]:
     return start, end
 
 
+def _trim_tail_until_accel_quiet(
+    frame: pd.DataFrame,
+    mag_threshold: float = ACCEL_TAIL_MAG_THRESHOLD,
+    quiet_run: int = ACCEL_TAIL_QUIET_RUN_SAMPLES,
+    max_trim: int = ACCEL_TAIL_MAX_TRIM_SAMPLES,
+) -> pd.DataFrame:
+    """Trim the tail so the kept data ends with ``quiet_run`` consecutive quiet samples.
+
+    A sample is quiet when |ax|, |ay|, and |az| are all below ``mag_threshold``.
+    Chooses the longest kept prefix (fewest rows dropped) that satisfies this,
+    with at most ``max_trim`` rows removed. If none qualifies, drops ``max_trim``
+    rows from the end.
+    """
+    if frame.empty or max_trim <= 0:
+        return frame
+    n = len(frame)
+    if n < quiet_run:
+        return frame
+
+    def _suffix_quiet(end: int) -> bool:
+        chunk = frame.iloc[end - quiet_run : end][["ax", "ay", "az"]].abs()
+        return bool((chunk < mag_threshold).all(axis=None))
+
+    min_end = max(quiet_run, n - max_trim)
+    for end in range(n, min_end - 1, -1):
+        if _suffix_quiet(end):
+            return frame.iloc[:end].copy().reset_index(drop=True)
+
+    fallback_end = max(0, n - max_trim)
+    return frame.iloc[:fallback_end].copy().reset_index(drop=True)
+
+
 # ---------------------------------------------------------------------------
 # Load data & run split_reps
 # ---------------------------------------------------------------------------
 
 df = pd.read_csv("data/sessions/formfit_data2.csv")
+df = _trim_tail_until_accel_quiet(df)
 
 samples = [
     Sample(roll=row.roll, pitch=row.pitch, yaw=row.yaw, t=row.t)
