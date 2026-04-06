@@ -18,7 +18,7 @@ MIN_REP_SAMPLES: int = 5
 ACCEL_TAIL_MAG_THRESHOLD: float = 0.5  # per sample: |ax|,|ay|,|az| each below this
 ACCEL_TAIL_QUIET_RUN_SAMPLES: int = 50  # consecutive quiet samples required at end of kept data
 ACCEL_TAIL_MAX_TRIM_SAMPLES: int = 300
-DEFAULT_MAX_REPS: int = 10
+DEFAULT_MAX_REPS: int = 0  # 0 = no cap; filters handle false reps
 
 # ---------------------------------------------------------------------------
 # Data classes
