@@ -94,8 +94,13 @@ def split_reps(
     # floor.  Replace them all with a single synthetic anchor at index 0.
     # Peaks in the rest of the signal are left completely untouched.
     start_roll = axis_values[0]
+    # Only trigger noise-peak pruning when there is a genuinely deep valley
+    # early in the signal (must drop at least one full min_amplitude below
+    # start).  A shallow dip (e.g. < min_amplitude) means the recording
+    # started mid-motion or the user's neutral is offset; in that case we
+    # leave the peak list alone so legitimate reps are not wiped out.
     first_deep_valley = next(
-        (v for v in valleys if (start_roll - axis_values[v]) > min_amplitude * 0.4),
+        (v for v in valleys if (start_roll - axis_values[v]) > min_amplitude),
         None,
     )
     if first_deep_valley is not None:
@@ -105,8 +110,10 @@ def split_reps(
             and abs(axis_values[p] - start_roll) < total_range * 0.03
         ]
         if noise_peaks:
-            valley_floor = axis_values[first_deep_valley]
-            recovery_threshold = valley_floor + total_range * 0.10
+            # Recovery threshold is relative to start_roll so that recordings
+            # where the neutral position is slightly negative (e.g. -0.15 rad)
+            # don't require an unreachably high peak to qualify.
+            recovery_threshold = start_roll - total_range * 0.10
             first_recovery = next(
                 (p for p in peaks if p > first_deep_valley and axis_values[p] > recovery_threshold),
                 None,
