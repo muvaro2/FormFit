@@ -446,9 +446,9 @@ ECCENTRIC_COLORS = {
 }
 
 ECCENTRIC_LABELS = {
-    "good":         "Good eccentric",
+    "good":          "Good eccentric",
     "slightly_fast": "Eccentric slightly too fast",
-    "too_fast":     "Eccentric too fast",
+    "too_fast":      "Eccentric too fast",
 }
 
 
@@ -466,9 +466,9 @@ def _eccentric_time(rep: Repetition) -> float:
 
 
 def _eccentric_score(duration: float) -> str:
-    if duration >= 3.0:
-        return "good"
     if duration >= 2.0:
+        return "good"
+    if duration >= 1.0:
         return "slightly_fast"
     return "too_fast"
 
@@ -549,9 +549,9 @@ for i, rep in enumerate(reps):
 
 # Eccentric quality colour key (shown once, below sensor lines)
 quality_legend = [
-    mpatches.Patch(color=ECCENTRIC_COLORS["good"],          alpha=0.7, label="Good eccentric  (≥ 3.0 s)"),
-    mpatches.Patch(color=ECCENTRIC_COLORS["slightly_fast"], alpha=0.7, label="Eccentric slightly too fast  (2.0 – 3.0 s)"),
-    mpatches.Patch(color=ECCENTRIC_COLORS["too_fast"],      alpha=0.7, label="Eccentric too fast  (< 2.0 s)"),
+    mpatches.Patch(color=ECCENTRIC_COLORS["good"],          alpha=0.7, label="Good eccentric  (≥ 2.0 s)"),
+    mpatches.Patch(color=ECCENTRIC_COLORS["slightly_fast"], alpha=0.7, label="Eccentric slightly too fast  (1.0 – 2.0 s)"),
+    mpatches.Patch(color=ECCENTRIC_COLORS["too_fast"],      alpha=0.7, label="Eccentric too fast  (< 1.0 s)"),
 ]
 
 # Top subplot: sensor lines + per-rep legend
