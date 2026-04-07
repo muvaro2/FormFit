@@ -362,6 +362,9 @@ def export_reps(csv_path: str) -> None:
         mask = (df["t"] >= t_start) & (df["t"] <= t_end)
         rep_df = df.loc[mask].copy().reset_index(drop=True)
 
+        # Normalise timestamps so each rep starts at t=0
+        rep_df["t"] = rep_df["t"] - rep_df["t"].iloc[0]
+
         out_path = os.path.join(out_dir, f"{stem}_{rep_num}.csv")
         rep_df.to_csv(out_path, index=False)
         print(f"  rep {rep_num}: {len(rep_df)} rows  →  {out_path}")
