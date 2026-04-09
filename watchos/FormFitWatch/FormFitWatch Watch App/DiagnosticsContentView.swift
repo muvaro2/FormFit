@@ -24,9 +24,7 @@ struct MetricCell: View {
 }
 
 struct DiagnosticsContentView: View {
-    //Own exactly one MotionManager instance for this view
-    @StateObject private var motion = MotionManager()
-    //@StateObject pretty much means “this view owns one MotionManager and keeps it alive across SwiftUI redraws.”
+    @StateObject private var motion = MotionManager.shared
     
     // Bind the slider to MotionManager.tickMs but route writes through updateTicks(ms:)
     /*

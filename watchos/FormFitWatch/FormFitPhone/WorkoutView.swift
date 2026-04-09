@@ -50,19 +50,23 @@ struct WorkoutView: View {
                 index: repetition.index + 1,
                 rangeOfMotion: repetition.rangeOfMotion,
                 eccentricTime: repetition.eccentricTime,
-                concentricTime: repetition.concentricTime
+                concentricTime: repetition.concentricTime,
+                formScore: repetition.formScore,
+                elbowHikingScore: repetition.elbowHikingScore,
+                shoulderHikingScore: repetition.shoulderHikingScore,
+                torsoTwistScore: repetition.torsoTwistScore
             )
         }
     }
 
     private var scoreValue: String {
         guard let latestSession else { return "--" }
-        return latestSession.formScore > 0 ? "\(latestSession.formScore)" : "Saved"
+        return "\(latestSession.formScore)"
     }
 
     private var scoreLabel: String {
-        guard let latestSession else { return "No Session" }
-        return latestSession.formScore > 0 ? "Preview Score" : "Data Ready"
+        guard latestSession != nil else { return "No Session" }
+        return "Form Score"
     }
 
     private var scoreTrim: Double {
@@ -73,34 +77,36 @@ struct WorkoutView: View {
 
     private var coachMessage: String {
         guard let latestSession else {
-            return "No imported workout yet. Finish a watch collection and save it to send the CSV here."
+            return "No imported workout yet. Start a set on the watch and the score will appear here automatically."
         }
 
-        if let averageRangeOfMotion, let averageEccentricTime, let averageEccentricScore {
-            return "Detected \(latestSession.repetitionCount) reps with an average ROM of \(Int(averageRangeOfMotion.rounded())) degrees. Your \(averageEccentricScore.label.lowercased()) is averaging \(averageEccentricTime.formatted(.number.precision(.fractionLength(1)))) seconds right now."
+        let score = latestSession.formScore
+        let reps = latestSession.repetitionCount
+        switch score {
+        case 90...:
+            return "Great set — \(reps) reps scored \(score)/100. Clean form across the board."
+        case 75..<90:
+            return "Solid set — \(reps) reps scored \(score)/100. Minor form drift detected."
+        case 60..<75:
+            return "Decent set — \(reps) reps scored \(score)/100. Focus on eccentric tempo and keeping the elbow pinned."
+        default:
+            return "\(reps) reps scored \(score)/100. Review your form cues and slow the lowering phase."
         }
-
-        if latestSession.formScore > 0 {
-            return "This preview score is derived from the imported motion data. Final Core ML coaching will replace this placeholder feedback later."
-        }
-
-        return "Workout data imported successfully. Final scoring and AI coaching will appear here once the Core ML pipeline is connected."
     }
 
     private var expandedCoachMessage: String {
         guard let latestSession else {
-            return "No imported workout is available yet. Start collection on the watch, save the session there, and the phone will keep the CSV in Files while also importing it into the app."
+            return "No imported workout is available yet. Start collection on the watch — the phone will auto-save and score it."
         }
 
         let filename = latestSession.sourceFilename ?? "Unknown source"
         return """
-        Raw workout data is already safely on the phone.
-
+        Form score: \(latestSession.formScore)/100
+        Reps detected: \(latestSession.repetitionCount)
+        Samples stored: \(latestSession.sampleCount)
         Source file: \(filename)
-        Samples stored in app data: \(latestSession.sampleCount)
-        Repetitions detected: \(latestSession.repetitionCount)
 
-        Final Core ML scoring and coaching can plug into this summary screen later without changing the watch-to-phone transfer flow.
+        Scoring weights: 25% each for elbow hike, shoulder shrug, torso twist (Core ML), plus 25% for eccentric tempo (2–3s ideal).
         """
     }
 
@@ -109,144 +115,125 @@ struct WorkoutView: View {
             ZStack {
                 FormFitBackdrop()
 
-                VStack(spacing: 24) {
-                    Spacer()
+                ScrollView {
+                    VStack(spacing: 24) {
+                        ZStack {
+                            Circle()
+                                .stroke(FormFitTheme.cardBorder.opacity(0.5), lineWidth: 20)
+                                .frame(width: 200, height: 200)
 
-                    ZStack {
-                        Circle()
-                            .stroke(FormFitTheme.cardBorder.opacity(0.5), lineWidth: 20)
-                            .frame(width: 200, height: 200)
+                            Circle()
+                                .trim(from: 0, to: scoreTrim)
+                                .stroke(FormFitTheme.orange, style: StrokeStyle(lineWidth: 20, lineCap: .round))
+                                .frame(width: 200, height: 200)
+                                .rotationEffect(.degrees(-90))
 
-                        Circle()
-                            .trim(from: 0, to: scoreTrim)
-                            .stroke(FormFitTheme.orange, style: StrokeStyle(lineWidth: 20, lineCap: .round))
-                            .frame(width: 200, height: 200)
-                            .rotationEffect(.degrees(-90))
-
-                        VStack(spacing: 8) {
-                            Text(scoreValue)
-                                .font(.system(size: 56, weight: .bold))
-                                .foregroundStyle(FormFitTheme.orange)
-                                .multilineTextAlignment(.center)
-                            Text(scoreLabel)
-                                .font(.headline)
-                                .foregroundStyle(FormFitTheme.textSecondary)
-                        }
-                    }
-
-                    VStack(alignment: .leading, spacing: 12) {
-                        HStack {
-                            Image(systemName: "sparkles")
-                                .foregroundStyle(FormFitTheme.orange)
-                            Text("AI Coach")
-                                .font(.headline)
-                                .foregroundStyle(FormFitTheme.textPrimary)
-                        }
-
-                        Text(coachMessage)
-                            .font(.subheadline)
-                            .foregroundStyle(FormFitTheme.textSecondary)
-                            .lineLimit(3)
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .formFitCard()
-                    .onTapGesture {
-                        withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) {
-                            showFeedbackExpanded = true
-                        }
-                    }
-
-                    if let latestSession {
-                        VStack(alignment: .leading, spacing: 10) {
-                            Text("\(latestSession.exerciseName) • \(latestSession.durationMinutes) min")
-                                .font(.subheadline.weight(.semibold))
-                                .foregroundStyle(FormFitTheme.textPrimary)
-
-                            if let sourceFilename = latestSession.sourceFilename {
-                                Text(sourceFilename)
-                                    .font(.caption)
+                            VStack(spacing: 8) {
+                                Text(scoreValue)
+                                    .font(.system(size: 56, weight: .bold))
+                                    .foregroundStyle(FormFitTheme.orange)
+                                    .multilineTextAlignment(.center)
+                                Text(scoreLabel)
+                                    .font(.headline)
                                     .foregroundStyle(FormFitTheme.textSecondary)
                             }
                         }
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                    }
+                        .frame(maxWidth: .infinity)
 
-                    HStack(spacing: 20) {
-                        MetricView(icon: "flame.fill", value: "\(latestSession?.repetitionCount ?? 0)", label: "Reps", color: FormFitTheme.orange)
-                        MetricView(icon: "waveform.path.ecg", value: "\(latestSession?.sampleCount ?? 0)", label: "Samples", color: FormFitTheme.info)
-                        MetricView(
-                            icon: "timer",
-                            value: latestSession?.sampleRateHz.map { "\(Int($0.rounded()))Hz" } ?? "--",
-                            label: "Rate",
-                            color: FormFitTheme.success
-                        )
-                    }
-
-                    if let averageRangeOfMotion, let averageEccentricTime {
-                        HStack(spacing: 20) {
-                            MetricView(
-                                icon: "ruler",
-                                value: "\(Int(averageRangeOfMotion.rounded()))°",
-                                label: "Avg ROM",
-                                color: FormFitTheme.warning
-                            )
-                            MetricView(
-                                icon: "arrow.down.circle",
-                                value: "\(averageConcentricTime?.formatted(.number.precision(.fractionLength(1))) ?? "--")s",
-                                label: "Concentric",
-                                color: FormFitTheme.info
-                            )
-                            MetricView(
-                                icon: "arrow.up.circle",
-                                value: "\(averageEccentricTime.formatted(.number.precision(.fractionLength(1))))s",
-                                label: "Eccentric",
-                                color: color(for: averageEccentricScore)
-                            )
-                        }
-                    }
-
-                    if !repetitionInsights.isEmpty {
-                        VStack(alignment: .leading, spacing: 14) {
-                            Text("Rep Split")
-                                .font(.headline)
-                                .foregroundStyle(FormFitTheme.textPrimary)
-
-                            ScrollView(.horizontal, showsIndicators: false) {
-                                HStack(spacing: 12) {
-                                    ForEach(repetitionInsights) { repetition in
-                                        RepetitionInsightCard(repetition: repetition)
-                                    }
-                                }
+                        VStack(alignment: .leading, spacing: 12) {
+                            HStack {
+                                Image(systemName: "sparkles")
+                                    .foregroundStyle(FormFitTheme.orange)
+                                Text("AI Coach")
+                                    .font(.headline)
+                                    .foregroundStyle(FormFitTheme.textPrimary)
                             }
+
+                            Text(coachMessage)
+                                .font(.subheadline)
+                                .foregroundStyle(FormFitTheme.textSecondary)
+                                .lineLimit(3)
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .formFitCard()
-                    }
-
-                    Spacer()
-
-                    if let latestSession, latestSession.sampleCount > 0 {
-                        Button(action: {
-                            showGraphs = true
-                        }) {
-                            Label("See Graphs", systemImage: "chart.xyaxis.line")
-                                .font(.headline)
-                                .formFitSecondaryButton(accent: FormFitTheme.orange)
+                        .onTapGesture {
+                            withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) {
+                                showFeedbackExpanded = true
+                            }
                         }
-                        .padding(.horizontal)
-                    }
 
-                    Button(action: {
-                        dismiss()
-                    }) {
-                        Text("Done")
-                            .font(.headline)
-                            .formFitPrimaryButton()
+                        if let latestSession {
+                            VStack(alignment: .leading, spacing: 10) {
+                                Text("\(latestSession.exerciseName) • \(latestSession.durationMinutes) min")
+                                    .font(.subheadline.weight(.semibold))
+                                    .foregroundStyle(FormFitTheme.textPrimary)
+
+                                if let sourceFilename = latestSession.sourceFilename {
+                                    Text(sourceFilename)
+                                        .font(.caption)
+                                        .foregroundStyle(FormFitTheme.textSecondary)
+                                }
+                            }
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        }
+
+                        HStack(spacing: 20) {
+                            MetricView(icon: "flame.fill", value: "\(latestSession?.repetitionCount ?? 0)", label: "Reps", color: FormFitTheme.orange)
+                            MetricView(icon: "waveform.path.ecg", value: "\(latestSession?.sampleCount ?? 0)", label: "Samples", color: FormFitTheme.info)
+                            MetricView(
+                                icon: "timer",
+                                value: latestSession?.sampleRateHz.map { "\(Int($0.rounded()))Hz" } ?? "--",
+                                label: "Rate",
+                                color: FormFitTheme.success
+                            )
+                        }
+
+                        if let averageRangeOfMotion, let averageEccentricTime {
+                            HStack(spacing: 20) {
+                                MetricView(
+                                    icon: "ruler",
+                                    value: "\(Int(averageRangeOfMotion.rounded()))°",
+                                    label: "Avg ROM",
+                                    color: FormFitTheme.warning
+                                )
+                                MetricView(
+                                    icon: "arrow.down.circle",
+                                    value: "\(averageConcentricTime?.formatted(.number.precision(.fractionLength(1))) ?? "--")s",
+                                    label: "Concentric",
+                                    color: FormFitTheme.info
+                                )
+                                MetricView(
+                                    icon: "arrow.up.circle",
+                                    value: "\(averageEccentricTime.formatted(.number.precision(.fractionLength(1))))s",
+                                    label: "Eccentric",
+                                    color: color(for: averageEccentricScore)
+                                )
+                            }
+                        }
+
+                        if !repetitionInsights.isEmpty {
+                            VStack(alignment: .leading, spacing: 14) {
+                                Text("Rep Split")
+                                    .font(.headline)
+                                    .foregroundStyle(FormFitTheme.textPrimary)
+
+                                ScrollView(.horizontal, showsIndicators: false) {
+                                    HStack(spacing: 12) {
+                                        ForEach(repetitionInsights) { repetition in
+                                            RepetitionInsightCard(repetition: repetition)
+                                        }
+                                    }
+                                }
+                            }
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .formFitCard()
+                        }
                     }
                     .padding(.horizontal)
+                    .padding(.top, 20)
+                    .padding(.bottom, 120)
                 }
-                .padding()
-                .navigationTitle("Workout Summary")
+                .scrollIndicators(.hidden)
 
                 if showFeedbackExpanded {
                     ZStack {
@@ -285,6 +272,41 @@ struct WorkoutView: View {
                         }
                     }
                 }
+            }
+            .navigationTitle("Workout Summary")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Done") {
+                        dismiss()
+                    }
+                    .foregroundStyle(FormFitTheme.orange)
+                }
+            }
+            .safeAreaInset(edge: .bottom) {
+                VStack(spacing: 12) {
+                    if let latestSession, latestSession.sampleCount > 0 {
+                        Button(action: {
+                            showGraphs = true
+                        }) {
+                            Label("See Graphs", systemImage: "chart.xyaxis.line")
+                                .font(.headline)
+                                .formFitSecondaryButton(accent: FormFitTheme.orange)
+                        }
+                    }
+
+                    Button(action: {
+                        dismiss()
+                    }) {
+                        Text("Done")
+                            .font(.headline)
+                            .formFitPrimaryButton()
+                    }
+                }
+                .padding(.horizontal)
+                .padding(.top, 12)
+                .padding(.bottom, 8)
+                .background(.ultraThinMaterial)
             }
         }
         .fullScreenCover(isPresented: $showGraphs) {
@@ -340,6 +362,10 @@ private struct RepetitionInsight: Identifiable {
     let rangeOfMotion: Double?
     let eccentricTime: Double?
     let concentricTime: Double?
+    let formScore: Double?
+    let elbowHikingScore: Double?
+    let shoulderHikingScore: Double?
+    let torsoTwistScore: Double?
 }
 
 private struct RepetitionInsightCard: View {
@@ -351,9 +377,19 @@ private struct RepetitionInsightCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Rep \(repetition.index)")
-                .font(.headline)
-                .foregroundStyle(FormFitTheme.textPrimary)
+            HStack(alignment: .firstTextBaseline) {
+                Text("Rep \(repetition.index)")
+                    .font(.headline)
+                    .foregroundStyle(FormFitTheme.textPrimary)
+
+                Spacer(minLength: 8)
+
+                if let formScore = repetition.formScore {
+                    Text("\(Int(formScore.rounded()))/100")
+                        .font(.caption.weight(.bold))
+                        .foregroundStyle(scoreColor(for: formScore))
+                }
+            }
 
             Text(repetition.rangeOfMotion.map { "\($0.formatted(.number.precision(.fractionLength(0))))° ROM" } ?? "--")
                 .font(.subheadline.weight(.semibold))
@@ -372,6 +408,15 @@ private struct RepetitionInsightCard: View {
                     .font(.caption.weight(.semibold))
                     .foregroundStyle(color(for: eccentricStatus))
             }
+
+            if repetition.hasModelInsights {
+                Divider()
+                    .padding(.vertical, 2)
+
+                insightRow(title: "Elbow", value: repetition.elbowHikingScore)
+                insightRow(title: "Shoulder", value: repetition.shoulderHikingScore)
+                insightRow(title: "Torso", value: repetition.torsoTwistScore)
+            }
         }
         .frame(width: 170, alignment: .leading)
         .formFitCard()
@@ -386,6 +431,58 @@ private struct RepetitionInsightCard: View {
         case .tooFast:
             return FormFitTheme.danger
         }
+    }
+
+    private func insightRow(title: String, value: Double?) -> some View {
+        HStack {
+            Text(title)
+                .font(.caption)
+                .foregroundStyle(FormFitTheme.textSecondary)
+
+            Spacer(minLength: 8)
+
+            Text(formattedIssueScore(value))
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(issueColor(for: value))
+        }
+    }
+
+    private func formattedIssueScore(_ value: Double?) -> String {
+        guard let value else { return "--" }
+        let subscore = max(1, min(100, Int(((1.0 - value) * 100.0).rounded())))
+        return "\(subscore)/100"
+    }
+
+    private func issueColor(for value: Double?) -> Color {
+        guard let value else { return FormFitTheme.textSecondary }
+        switch value {
+        case ..<0.33:
+            return FormFitTheme.success
+        case ..<0.66:
+            return FormFitTheme.warning
+        default:
+            return FormFitTheme.danger
+        }
+    }
+
+    private func scoreColor(for score: Double) -> Color {
+        switch score {
+        case 90...:
+            return FormFitTheme.success
+        case 75..<90:
+            return FormFitTheme.warning
+        default:
+            return FormFitTheme.danger
+        }
+    }
+}
+
+private extension RepetitionInsight {
+    var hasModelInsights: Bool {
+        formScore != nil ||
+        elbowHikingScore != nil ||
+        shoulderHikingScore != nil ||
+        torsoTwistScore != nil
     }
 }
 

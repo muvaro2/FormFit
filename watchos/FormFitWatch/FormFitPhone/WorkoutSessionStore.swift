@@ -70,6 +70,10 @@ final class WorkoutRepetition {
     var rangeOfMotion: Double?
     var concentricTime: Double?
     var eccentricTime: Double?
+    var elbowHikingScore: Double?
+    var shoulderHikingScore: Double?
+    var torsoTwistScore: Double?
+    var formScore: Double?
     var repetitionDate: Date
     var session: WorkoutSession?
     @Relationship(deleteRule: .cascade, inverse: \WorkoutMotionSample.repetition) var samples: [WorkoutMotionSample]
@@ -80,6 +84,10 @@ final class WorkoutRepetition {
         rangeOfMotion: Double? = nil,
         concentricTime: Double? = nil,
         eccentricTime: Double? = nil,
+        elbowHikingScore: Double? = nil,
+        shoulderHikingScore: Double? = nil,
+        torsoTwistScore: Double? = nil,
+        formScore: Double? = nil,
         repetitionDate: Date,
         session: WorkoutSession? = nil,
         samples: [WorkoutMotionSample] = []
@@ -89,6 +97,10 @@ final class WorkoutRepetition {
         self.rangeOfMotion = rangeOfMotion
         self.concentricTime = concentricTime
         self.eccentricTime = eccentricTime
+        self.elbowHikingScore = elbowHikingScore
+        self.shoulderHikingScore = shoulderHikingScore
+        self.torsoTwistScore = torsoTwistScore
+        self.formScore = formScore
         self.repetitionDate = repetitionDate
         self.session = session
         self.samples = samples
@@ -267,9 +279,12 @@ enum WorkoutSessionImporter {
             .compactMap(\.relativeTime)
             .max() ?? 0
 
+        let inference = FormFitInference.shared.scoreWorkout(activitySet)
+        let formScore = inference?.workout ?? derivedFormScore(from: repetitions)
+
         let session = WorkoutSession(
             exerciseName: exerciseName,
-            formScore: derivedFormScore(from: repetitions),
+            formScore: formScore,
             durationMinutes: max(1, Int(ceil(durationSeconds / 60.0))),
             workoutDate: activitySet.timestamp,
             sourceFilename: sourceFilename,
@@ -281,11 +296,16 @@ enum WorkoutSessionImporter {
         context.insert(session)
 
         session.repetitions = repetitions.enumerated().map { index, repetition in
+            let repInference = inference?.rep[safe: index]
             let storedRepetition = WorkoutRepetition(
                 index: index,
                 rangeOfMotion: repetition.rangeOfMotion,
                 concentricTime: repetition.concentricTime,
                 eccentricTime: repetition.eccentricTime,
+                elbowHikingScore: repInference?.elbowHiking,
+                shoulderHikingScore: repInference?.shoulderHiking,
+                torsoTwistScore: repInference?.torsoTwist,
+                formScore: repInference?.overallScore,
                 repetitionDate: repetition.timestamp,
                 session: session
             )
@@ -293,7 +313,7 @@ enum WorkoutSessionImporter {
             storedRepetition.samples = repetition.samples.enumerated().map { sampleIndex, sample in
                 WorkoutMotionSample(
                     index: sampleIndex,
-                    relativeTime: Double(sample.relativeTime ?? 0),
+                    relativeTime: sample.relativeTime ?? 0,
                     accelerationX: sample.accelerationX,
                     accelerationY: sample.accelerationY,
                     accelerationZ: sample.accelerationZ,
@@ -341,35 +361,21 @@ enum WorkoutSessionImporter {
         return inferredRate.isFinite && inferredRate > 0 ? inferredRate : nil
     }
 
+    /// Fallback score used only when the Core ML model cannot be loaded
+    /// (e.g. FormFitModel.mlpackage was not added to the phone target).
     private static func derivedFormScore(from repetitions: [Repetition]) -> Int {
         let romValues = repetitions.compactMap(\.rangeOfMotion)
         guard !romValues.isEmpty else { return 0 }
 
-        let averageROM = romValues.reduce(0, +) / Double(romValues.count)
-        let normalizedROMScore = max(0, min(100, (averageROM / 90.0) * 100.0))
+        let averageROM = romValues.reduce(0.0, +) / Double(romValues.count)
+        return max(0, min(100, Int(averageROM.rounded())))
+    }
+}
 
-        let eccentricScores = repetitions
-            .compactMap(\.eccentricTime)
-            .map(eccentricScore(duration:))
-
-        guard !eccentricScores.isEmpty else {
-            return Int(normalizedROMScore.rounded())
-        }
-
-        let normalizedTempoScore = eccentricScores.reduce(0.0) { partialResult, score in
-            switch score {
-            case .good:
-                return partialResult + 100
-            case .slightlyFast:
-                return partialResult + 75
-            case .tooFast:
-                return partialResult + 45
-            }
-        } / Double(eccentricScores.count)
-
-        // Temporary preview score until the Core ML pipeline replaces it.
-        let combinedScore = (normalizedROMScore * 0.65) + (normalizedTempoScore * 0.35)
-        return max(0, min(100, Int(combinedScore.rounded())))
+private extension Array {
+    subscript(safe index: Int) -> Element? {
+        guard indices.contains(index) else { return nil }
+        return self[index]
     }
 }
 

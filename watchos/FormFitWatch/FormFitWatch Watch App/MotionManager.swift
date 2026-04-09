@@ -9,6 +9,7 @@ import Foundation
 import CoreMotion
 import Combine
 import WatchKit
+import HealthKit
 
 struct MotionSample: Identifiable {
     let id = UUID() //Unique id for each data sample
@@ -29,10 +30,14 @@ struct MotionSample: Identifiable {
     let roll, pitch, yaw: Double
 }
 
-final class MotionManager: ObservableObject {
+final class MotionManager: NSObject, ObservableObject {
     static let shared = MotionManager()
 
     private let motion = CMMotionManager()
+    private let healthStore = HKHealthStore()
+    private var workoutSession: HKWorkoutSession?
+    private var workoutBuilder: HKLiveWorkoutBuilder?
+    private var healthKitAuthorized = false
     
     // Tick rate in milliseconds (changeable later from the UI)
     // @Published var tickMs: Double = 10 //Published is used by publisher through Combine
@@ -64,12 +69,34 @@ final class MotionManager: ObservableObject {
     // private let gyroStillThreshold = 0.35 // rad/s
     
     private let maxBuffer = 10000 //5000 * 50 = 250000 ms or 250 seconds of data can be buffered
+
+    private override init() {
+        super.init()
+    }
+
+    func requestHealthKitAuthorizationIfNeeded() {
+        guard HKHealthStore.isHealthDataAvailable() else { return }
+        guard !healthKitAuthorized else { return }
+
+        let shareTypes: Set = [HKObjectType.workoutType()]
+        let readTypes: Set = [HKObjectType.workoutType()]
+
+        healthStore.requestAuthorization(toShare: shareTypes, read: readTypes) { [weak self] success, error in
+            DispatchQueue.main.async {
+                self?.healthKitAuthorized = success
+                if let error {
+                    print("HealthKit authorization failed: \(error)")
+                }
+            }
+        }
+    }
     
     func start() {
         guard motion.isDeviceMotionAvailable else {
             print("⚠️ Device motion not available on this device/simulator.")
             return
         }
+        startWorkoutSessionIfPossible()
         motion.deviceMotionUpdateInterval = tickMs / 1000.0 //setting the interval into manager
         isRunning = true
         isPreparing = false
@@ -101,6 +128,7 @@ final class MotionManager: ObservableObject {
         prepWorkItem = nil
         
         motion.stopDeviceMotionUpdates()
+        endWorkoutSessionIfNeeded()
         isRunning = false
         isPreparing = false
         
@@ -131,6 +159,7 @@ final class MotionManager: ObservableObject {
         if isRunning { stop() }
         clear()
         lastSaveMessage = nil
+        startWorkoutSessionIfPossible()
         
         isRunning = true
         isRecording = false
@@ -328,6 +357,90 @@ final class MotionManager: ObservableObject {
         // Fallback if that frame is unavailable on the current watch
         return .xArbitraryZVertical
     }
+
+    private func startWorkoutSessionIfPossible() {
+        guard HKHealthStore.isHealthDataAvailable() else { return }
+        guard healthKitAuthorized else { return }
+        guard workoutSession == nil else { return }
+
+        do {
+            let configuration = HKWorkoutConfiguration()
+            configuration.activityType = .traditionalStrengthTraining
+            configuration.locationType = .indoor
+
+            let session = try HKWorkoutSession(healthStore: healthStore, configuration: configuration)
+            let builder = session.associatedWorkoutBuilder()
+
+            workoutSession = session
+            workoutBuilder = builder
+
+            session.delegate = self
+            builder.delegate = self
+            builder.dataSource = HKLiveWorkoutDataSource(
+                healthStore: healthStore,
+                workoutConfiguration: configuration
+            )
+
+            let startDate = Date()
+            session.startActivity(with: startDate)
+            builder.beginCollection(withStart: startDate) { success, error in
+                if let error {
+                    print("Workout collection begin failed: \(error)")
+                } else if success {
+                    print("Workout collection started.")
+                }
+            }
+        } catch {
+            print("Workout session failed to start: \(error)")
+        }
+    }
+
+    private func endWorkoutSessionIfNeeded() {
+        guard let session = workoutSession else { return }
+
+        let builder = workoutBuilder
+        workoutSession = nil
+        workoutBuilder = nil
+
+        session.end()
+        builder?.endCollection(withEnd: Date()) { _, error in
+            if let error {
+                print("Workout collection end failed: \(error)")
+            }
+
+            builder?.finishWorkout { _, finishError in
+                if let finishError {
+                    print("Workout finish failed: \(finishError)")
+                }
+            }
+        }
+    }
 }
 
+extension MotionManager: HKWorkoutSessionDelegate {
+    nonisolated func workoutSession(
+        _ workoutSession: HKWorkoutSession,
+        didChangeTo toState: HKWorkoutSessionState,
+        from fromState: HKWorkoutSessionState,
+        date: Date
+    ) {
+        print("Workout state changed: \(fromState.rawValue) -> \(toState.rawValue)")
+    }
+
+    nonisolated func workoutSession(
+        _ workoutSession: HKWorkoutSession,
+        didFailWithError error: Error
+    ) {
+        print("Workout session failed: \(error)")
+    }
+}
+
+extension MotionManager: HKLiveWorkoutBuilderDelegate {
+    nonisolated func workoutBuilderDidCollectEvent(_ workoutBuilder: HKLiveWorkoutBuilder) {}
+
+    nonisolated func workoutBuilder(
+        _ workoutBuilder: HKLiveWorkoutBuilder,
+        didCollectDataOf collectedTypes: Set<HKSampleType>
+    ) {}
+}
 

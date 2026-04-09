@@ -120,7 +120,7 @@ final class FormFitInference {
 
         // 3. Combine with eccentric time into 0-100 overall score.
         //    Mirrors CNN.py get_feedback: 25 pts per metric + 25 pts for ecc time.
-        let eccSeconds = Double(rep.eccentricTime ?? 0)
+        let eccSeconds = rep.eccentricTime ?? 0
         let overall = computeOverallScore(
             elbow: elbow,
             shoulder: shoulder,
@@ -275,9 +275,10 @@ final class FormFitInference {
         return max(0, min(100, total))
     }
 
-    /// Matches CNN.py: full credit for 2.0-3.0s eccentrics, decays otherwise.
+    /// Full credit for 2.0-3.0s eccentrics; tapering distribution otherwise.
+    ///     in [2, 3] → 1.0
+    ///     else     → min(1.0, 1.25 / (1 + (x - 2.5)^2))
     private func eccentricScore(_ seconds: Double) -> Double {
-        if seconds <= 0 { return 0 }
         if (2.0...3.0).contains(seconds) { return 1.0 }
         return min(1.0, 1.25 / (1.0 + pow(seconds - 2.5, 2)))
     }

@@ -29,6 +29,11 @@ final class PhoneConnectivityManager: NSObject, WCSessionDelegate, ObservableObj
     private var hasActivatedSession = false
     private var hasPerformedInitialImport = false
 
+    // Tracks the previous collecting state so we can auto-save on a
+    // collecting → stopped transition (replaces the manual Save button).
+    private var previousIsCollecting = false
+    private var autoSaveInFlight = false
+
     private override init() {
         super.init()
     }
@@ -230,10 +235,18 @@ final class PhoneConnectivityManager: NSObject, WCSessionDelegate, ObservableObj
                     in: modelContainer.mainContext
                 )
                 lastImportedFilename = fileURL.lastPathComponent
-                lastImportMessage = "Imported \(importedSession.sampleCount) samples into app data from \(fileURL.lastPathComponent)."
+                lastImportMessage = "Scored workout: \(importedSession.formScore)/100 • \(importedSession.repetitionCount) reps."
+
+                // Auto-clear the watch buffer once the data is safely stored on
+                // the phone, so the UI can return to a ready state without an
+                // extra manual tap. Clearing is best-effort.
+                if session.isReachable {
+                    sendCollectorCommand("clear")
+                }
             } catch {
                 lastImportMessage = "Saved \(fileURL.lastPathComponent) to Files, but app import failed: \(error.localizedDescription)"
             }
+            autoSaveInFlight = false
         }
     }
 
@@ -300,6 +313,8 @@ final class PhoneConnectivityManager: NSObject, WCSessionDelegate, ObservableObj
         let lastSaveMessage = message["lastSaveMessage"] as? String
 
         DispatchQueue.main.async {
+            let wasCollecting = self.previousIsCollecting
+
             self.isCollecting = isCollecting
             self.isPreparingCollection = isPreparing
             self.watchBufferCount = bufferCount
@@ -310,6 +325,19 @@ final class PhoneConnectivityManager: NSObject, WCSessionDelegate, ObservableObj
             } else if let lastSaveMessage, !lastSaveMessage.isEmpty {
                 self.lastWatchMessage = lastSaveMessage
             }
+
+            // Auto-save on collecting → stopped transition (when there's data
+            // to save and we haven't already kicked off a save for this run).
+            if wasCollecting, !isCollecting, bufferCount > 0, !self.autoSaveInFlight {
+                self.autoSaveInFlight = true
+                self.lastWatchMessage = "Auto-saving session from watch..."
+                // Small delay lets the watch settle state before we ask it to save.
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+                    self.sendCollectorCommand("save")
+                }
+            }
+
+            self.previousIsCollecting = isCollecting
         }
     }
 }

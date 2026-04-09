@@ -14,6 +14,7 @@ struct FormFitWatch_Watch_AppApp: App {
             CollectorContentView()
                 .onAppear {
                     WatchConnectivityManager.shared.activate()
+                    MotionManager.shared.requestHealthKitAuthorizationIfNeeded()
                 }
                 .preferredColorScheme(.light)
         }

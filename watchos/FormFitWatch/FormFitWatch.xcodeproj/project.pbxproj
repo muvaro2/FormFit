@@ -233,6 +233,11 @@
 					};
 					659D9C122E91F18A00FF386E = {
 						CreatedOnToolsVersion = 26.0.1;
+						SystemCapabilities = {
+							com.apple.HealthKit = {
+								enabled = 1;
+							};
+						};
 					};
 				};
 			};
@@ -329,7 +334,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 6Y5A852Q32;
+				DEVELOPMENT_TEAM = 2AMJ55P8NJ;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = FormFitPhone/Info.plist;
@@ -365,7 +370,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 6Y5A852Q32;
+				DEVELOPMENT_TEAM = 2AMJ55P8NJ;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = FormFitPhone/Info.plist;
@@ -524,11 +529,13 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 6Y5A852Q32;
+				DEVELOPMENT_TEAM = 2AMJ55P8NJ;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "FormFitWatch-Watch-App-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = FormFitWatch;
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "FormFit uses workout access to keep watch motion tracking active during a session.";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "FormFit saves workout sessions while collecting motion data on the watch.";
 				INFOPLIST_KEY_NSMotionUsageDescription = "Formfit uses motion sensors to analyze exercise form.";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.saavankiran.FormFitPhone;
@@ -564,11 +571,13 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 6Y5A852Q32;
+				DEVELOPMENT_TEAM = 2AMJ55P8NJ;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "FormFitWatch-Watch-App-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = FormFitWatch;
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "FormFit uses workout access to keep watch motion tracking active during a session.";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "FormFit saves workout sessions while collecting motion data on the watch.";
 				INFOPLIST_KEY_NSMotionUsageDescription = "Formfit uses motion sensors to analyze exercise form.";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.saavankiran.FormFitPhone;

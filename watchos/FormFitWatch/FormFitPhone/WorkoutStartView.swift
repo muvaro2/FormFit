@@ -6,6 +6,7 @@ struct WorkoutStartView: View {
         case countdown
         case preparing
         case collecting
+        case saving
         case captured
     }
 
@@ -14,6 +15,7 @@ struct WorkoutStartView: View {
     @ObservedObject private var connectivity = PhoneConnectivityManager.shared
     @State private var countdown = 5
     @State private var isCountdownActive = false
+    @State private var isAwaitingResults = false
     @State private var showWorkoutSummary = false
     @State private var countdownTask: Task<Void, Never>?
     @State private var importMarker: String?
@@ -22,19 +24,23 @@ struct WorkoutStartView: View {
         if isCountdownActive {
             return .countdown
         }
-
         if connectivity.isCollecting {
             return .collecting
         }
-
         if connectivity.isPreparingCollection {
             return .preparing
         }
-
+        if isAwaitingResults {
+            return .saving
+        }
+        // While the watch still has a buffer to save/import, show a "saving" state
+        // rather than asking the user to press a button.
         if connectivity.watchBufferCount > 0 {
+            return .saving
+        }
+        if importMarker != nil {
             return .captured
         }
-
         return .ready
     }
 
@@ -43,208 +49,238 @@ struct WorkoutStartView: View {
     }
 
     var body: some View {
-        NavigationView {
-            VStack(spacing: 24) {
-                Spacer(minLength: 12)
-
-                VStack(spacing: 12) {
-                    FormFitLogoMark(size: 64)
-
-                    Text("Current Workout")
-                        .font(.headline)
-                        .foregroundStyle(FormFitTheme.textSecondary)
-
-                    Text(workoutName)
-                        .font(.system(size: 32, weight: .bold, design: .rounded))
-                        .multilineTextAlignment(.center)
-                        .foregroundStyle(FormFitTheme.textPrimary)
+        ZStack {
+            if isAwaitingResults {
+                LaunchLoadingView()
+                    .overlay(alignment: .bottom) {
+                        VStack(spacing: 8) {
+                            Text("Finishing workout")
+                                .font(.headline)
+                                .foregroundStyle(FormFitTheme.textPrimary)
+                            Text("Hold on while we save the watch session and prepare your results.")
+                                .font(.subheadline)
+                                .foregroundStyle(FormFitTheme.textSecondary)
+                                .multilineTextAlignment(.center)
+                        }
+                        .padding(.horizontal, 32)
+                        .padding(.bottom, 56)
+                    }
+            } else {
+                ScrollView {
+                    VStack(spacing: 20) {
+                        header
+                        heroCircle
+                        statusMessage
+                        statusCard
+                        commandSection
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.top, 12)
+                    .padding(.bottom, 32)
+                    .frame(maxWidth: .infinity)
                 }
-
-                heroCircle
-
-                Text(statusText)
-                    .font(.subheadline)
-                    .foregroundStyle(FormFitTheme.textSecondary)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 24)
-
-                VStack(alignment: .leading, spacing: 10) {
-                    StatusStripRow(title: "Connection", value: connectivity.status)
-                    StatusStripRow(title: "Remote", value: remoteControlAvailable ? "Watch open and ready for phone control" : "Open FormFit on the watch for remote control")
-                    StatusStripRow(title: "Watch Buffer", value: "\(connectivity.watchBufferCount) samples")
-
-                    if let watchMessage = connectivity.lastWatchMessage {
-                        StatusStripRow(title: "Watch", value: watchMessage)
-                    }
-
-                    if let message = connectivity.lastImportMessage {
-                        StatusStripRow(title: "Import", value: message)
-                    }
-
-                    if let latestFile = connectivity.lastImportedFilename {
-                        StatusStripRow(title: "Latest Session", value: latestFile)
-                    }
-                }
-                .formFitCard()
-                .padding(.horizontal)
-
-                commandSection
-
-                Spacer()
+                .scrollIndicators(.hidden)
             }
-            .padding()
-            .formFitScreenBackground()
-            .navigationTitle("Start Workout")
+        }
+        .formFitScreenBackground()
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .principal) {
+                Text("Workout")
+                    .font(.headline)
+                    .foregroundStyle(FormFitTheme.textPrimary)
+            }
         }
         .sheet(isPresented: $showWorkoutSummary) {
             WorkoutView()
         }
+        .onAppear {
+            importMarker = connectivity.lastImportedFilename
+        }
         .onDisappear {
             countdownTask?.cancel()
+            isAwaitingResults = false
         }
         .onChange(of: connectivity.lastImportedFilename) { _, newValue in
             guard let newValue, newValue != importMarker else { return }
-            showWorkoutSummary = true
             importMarker = newValue
+            isAwaitingResults = false
+            showWorkoutSummary = true
         }
     }
+
+    // MARK: - Header
+
+    private var header: some View {
+        VStack(spacing: 6) {
+            FormFitLogoMark(size: 52)
+                .padding(.bottom, 4)
+
+            Text("Current Workout")
+                .font(.caption.weight(.semibold))
+                .tracking(0.6)
+                .foregroundStyle(FormFitTheme.textSecondary)
+
+            Text(workoutName)
+                .font(.system(size: 28, weight: .bold, design: .rounded))
+                .foregroundStyle(FormFitTheme.textPrimary)
+                .multilineTextAlignment(.center)
+                .lineLimit(2)
+        }
+    }
+
+    // MARK: - Hero circle
 
     private var heroCircle: some View {
         ZStack {
             Circle()
-                .fill(FormFitTheme.orange.opacity(0.1))
-                .frame(width: 220, height: 220)
+                .fill(FormFitTheme.orange.opacity(0.08))
+                .frame(width: 200, height: 200)
 
             Circle()
-                .stroke(FormFitTheme.orange.opacity(0.18), lineWidth: 14)
-                .frame(width: 220, height: 220)
+                .stroke(FormFitTheme.orange.opacity(0.18), lineWidth: 12)
+                .frame(width: 200, height: 200)
 
             switch displayState {
             case .ready:
-                VStack(spacing: 10) {
-                    Image(systemName: "figure.strengthtraining.traditional")
-                        .font(.system(size: 52))
-                        .foregroundStyle(FormFitTheme.orange)
-                    Text("Ready")
-                        .font(.title2.weight(.semibold))
-                        .foregroundStyle(FormFitTheme.textPrimary)
-                }
+                heroContent(icon: "figure.strengthtraining.traditional", label: "Ready", tint: FormFitTheme.orange)
             case .countdown:
-                VStack(spacing: 10) {
+                VStack(spacing: 6) {
                     Text("\(countdown)")
-                        .font(.system(size: 72, weight: .bold, design: .rounded))
+                        .font(.system(size: 68, weight: .bold, design: .rounded))
                         .foregroundStyle(FormFitTheme.orange)
-                    Text("Starting from Phone")
-                        .font(.headline)
+                    Text("Starting...")
+                        .font(.subheadline.weight(.semibold))
                         .foregroundStyle(FormFitTheme.textSecondary)
                 }
             case .preparing:
-                VStack(spacing: 10) {
-                    Image(systemName: "timer")
-                        .font(.system(size: 48))
-                        .foregroundStyle(FormFitTheme.orange)
-                    Text("Arming Watch")
-                        .font(.title3.weight(.semibold))
-                        .foregroundStyle(FormFitTheme.textPrimary)
-                }
+                heroContent(icon: "timer", label: "Arming", tint: FormFitTheme.orange)
             case .collecting:
+                heroContent(icon: "waveform.path.ecg", label: "Collecting", tint: FormFitTheme.danger)
+            case .saving:
                 VStack(spacing: 10) {
-                    Image(systemName: "waveform.path.ecg")
-                        .font(.system(size: 48))
-                        .foregroundStyle(FormFitTheme.danger)
-                    Text("Collecting")
-                        .font(.title2.weight(.semibold))
+                    ProgressView()
+                        .progressViewStyle(.circular)
+                        .tint(FormFitTheme.orange)
+                        .scaleEffect(1.4)
+                    Text("Scoring...")
+                        .font(.subheadline.weight(.semibold))
                         .foregroundStyle(FormFitTheme.textPrimary)
                 }
             case .captured:
-                VStack(spacing: 10) {
-                    Image(systemName: "checkmark.circle.fill")
-                        .font(.system(size: 50))
-                        .foregroundStyle(FormFitTheme.success)
-                    Text("Ready to Save")
-                        .font(.title3.weight(.semibold))
-                        .foregroundStyle(FormFitTheme.textPrimary)
-                }
+                heroContent(icon: "checkmark.circle.fill", label: "Saved", tint: FormFitTheme.success)
             }
         }
     }
 
-    @ViewBuilder
-    private var commandSection: some View {
-        VStack(spacing: 12) {
-            switch displayState {
-            case .ready:
-                Button(action: startCountdown) {
-                    Text("Start from Phone")
-                        .formFitPrimaryButton()
-                }
-                .disabled(!remoteControlAvailable)
-                .opacity(remoteControlAvailable ? 1 : 0.65)
-
-                if !remoteControlAvailable {
-                    Text("Remote start works once FormFit is open on the Apple Watch and the phone says the watch is reachable.")
-                        .font(.caption)
-                        .foregroundStyle(FormFitTheme.textSecondary)
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal, 24)
-                }
-
-            case .countdown:
-                Button(action: cancelCountdown) {
-                    Text("Cancel Countdown")
-                        .formFitSecondaryButton(accent: FormFitTheme.danger)
-                }
-
-            case .preparing:
-                Button(action: stopCollection) {
-                    Text("Stop Arming")
-                        .formFitSecondaryButton(accent: FormFitTheme.danger)
-                }
-
-            case .collecting:
-                Button(action: stopCollection) {
-                    Text("Stop Collection")
-                        .formFitSecondaryButton(accent: FormFitTheme.danger)
-                }
-
-            case .captured:
-                Button(action: saveSessionToPhone) {
-                    Text("Save Session to Phone")
-                        .formFitPrimaryButton()
-                }
-
-                HStack(spacing: 12) {
-                    Button(action: clearWatchBuffer) {
-                        Text("Clear Buffer")
-                            .formFitSecondaryButton(accent: FormFitTheme.orangeDeep)
-                    }
-
-                    Button(action: startCountdown) {
-                        Text("Record Again")
-                            .formFitSecondaryButton(accent: FormFitTheme.orange)
-                    }
-                    .disabled(!remoteControlAvailable)
-                    .opacity(remoteControlAvailable ? 1 : 0.65)
-                }
-            }
+    private func heroContent(icon: String, label: String, tint: Color) -> some View {
+        VStack(spacing: 8) {
+            Image(systemName: icon)
+                .font(.system(size: 46))
+                .foregroundStyle(tint)
+            Text(label)
+                .font(.title3.weight(.semibold))
+                .foregroundStyle(FormFitTheme.textPrimary)
         }
-        .padding(.horizontal)
+    }
+
+    // MARK: - Status
+
+    private var statusMessage: some View {
+        Text(statusText)
+            .font(.subheadline)
+            .foregroundStyle(FormFitTheme.textSecondary)
+            .multilineTextAlignment(.center)
+            .padding(.horizontal, 8)
+            .fixedSize(horizontal: false, vertical: true)
     }
 
     private var statusText: String {
         switch displayState {
         case .ready:
-            return "Use the phone as a remote start button, or keep collecting directly on the watch. Raw CSVs will still be saved into Files on the phone."
+            return "Use the phone as a remote start for your Apple Watch, or start collection directly on the watch."
         case .countdown:
-            return "Get into position. When the countdown finishes, the phone tells the watch to begin collecting."
+            return "Get into position. Collection will begin when the countdown finishes."
         case .preparing:
-            return "The watch is arming and will start collecting in just a moment."
+            return "The watch is arming and will start collecting in a moment."
         case .collecting:
-            return "Motion data is actively recording on the watch. You can stop from either device."
+            return "Motion data is recording. Stop from either device to finish the set."
+        case .saving:
+            return "Saving session from the watch and running form analysis..."
         case .captured:
-            return "The watch has captured a session. Save it to transfer the CSV into Files and import it into the app."
+            return "Session scored and stored. Start another set whenever you're ready."
         }
     }
+
+    // MARK: - Status card
+
+    private var statusCard: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            StatusStripRow(title: "Connection", value: connectivity.status)
+            StatusStripRow(
+                title: "Remote",
+                value: remoteControlAvailable
+                    ? "Watch app open and reachable"
+                    : "Open FormFit on Apple Watch"
+            )
+            StatusStripRow(title: "Buffer", value: "\(connectivity.watchBufferCount) samples")
+
+            if let latestFile = connectivity.lastImportedFilename {
+                StatusStripRow(title: "Latest", value: latestFile)
+            }
+            if let message = connectivity.lastImportMessage {
+                StatusStripRow(title: "Status", value: message)
+            }
+        }
+        .formFitCard()
+    }
+
+    // MARK: - Commands
+
+    @ViewBuilder
+    private var commandSection: some View {
+        switch displayState {
+        case .ready, .captured:
+            Button(action: startCountdown) {
+                Label("Start Workout", systemImage: "play.fill")
+                    .formFitPrimaryButton()
+            }
+            .disabled(!remoteControlAvailable)
+            .opacity(remoteControlAvailable ? 1 : 0.65)
+
+            if !remoteControlAvailable {
+                Text("Remote start requires FormFit open on the watch.")
+                    .font(.caption)
+                    .foregroundStyle(FormFitTheme.textSecondary)
+                    .multilineTextAlignment(.center)
+            }
+
+        case .countdown:
+            Button(action: cancelCountdown) {
+                Label("Cancel", systemImage: "xmark")
+                    .formFitSecondaryButton(accent: FormFitTheme.danger)
+            }
+
+        case .preparing:
+            Button(action: stopArming) {
+                Label("Stop Arming", systemImage: "stop.fill")
+                    .formFitSecondaryButton(accent: FormFitTheme.danger)
+            }
+
+        case .collecting:
+            Button(action: stopWorkoutAndScore) {
+                Label("Stop & Score", systemImage: "stop.fill")
+                    .formFitPrimaryButton()
+            }
+
+        case .saving:
+            // No interactive controls while auto-save is happening; the
+            // summary sheet will open on completion.
+            EmptyView()
+        }
+    }
+
+    // MARK: - Actions
 
     private func startCountdown() {
         guard remoteControlAvailable else { return }
@@ -255,17 +291,13 @@ struct WorkoutStartView: View {
         countdownTask?.cancel()
         countdownTask = Task {
             for value in stride(from: 5, through: 1, by: -1) {
-                await MainActor.run {
-                    countdown = value
-                }
-
+                await MainActor.run { countdown = value }
                 do {
                     try await Task.sleep(nanoseconds: 1_000_000_000)
                 } catch {
                     return
                 }
             }
-
             await MainActor.run {
                 isCountdownActive = false
                 connectivity.sendCollectorCommand("start")
@@ -279,17 +311,18 @@ struct WorkoutStartView: View {
         countdown = 5
     }
 
-    private func stopCollection() {
+    private func stopArming() {
         cancelCountdown()
+        isAwaitingResults = false
         connectivity.sendCollectorCommand("stop")
     }
 
-    private func saveSessionToPhone() {
-        connectivity.sendCollectorCommand("save")
-    }
-
-    private func clearWatchBuffer() {
-        connectivity.sendCollectorCommand("clear")
+    private func stopWorkoutAndScore() {
+        cancelCountdown()
+        isAwaitingResults = true
+        connectivity.sendCollectorCommand("stop")
+        // PhoneConnectivityManager will detect the collecting → stopped
+        // transition and automatically send the save command.
     }
 }
 
@@ -302,18 +335,19 @@ private struct StatusStripRow: View {
             Text(title)
                 .font(.caption.weight(.semibold))
                 .foregroundStyle(FormFitTheme.textSecondary)
-                .frame(width: 88, alignment: .leading)
+                .frame(width: 76, alignment: .leading)
 
             Text(value)
                 .font(.caption)
                 .foregroundStyle(FormFitTheme.textPrimary)
                 .multilineTextAlignment(.leading)
-
-            Spacer(minLength: 0)
+                .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 }
 
 #Preview {
-    WorkoutStartView()
+    NavigationView {
+        WorkoutStartView()
+    }
 }
