@@ -272,8 +272,9 @@ func splitReps(
     let minAmplitude = max(0.07, totalRange * 0.18)
 
     let startRoll = axisValues[0]
+
     let firstDeepValley = valleys.first { v in
-        (startRoll - axisValues[v]) > minAmplitude * 0.4
+        (startRoll - axisValues[v]) > minAmplitude
     }
 
     if let firstDeepValley {
@@ -281,8 +282,7 @@ func splitReps(
             p < firstDeepValley && abs(axisValues[p] - startRoll) < totalRange * 0.03
         }
         if !noisePeaks.isEmpty {
-            let valleyFloor = axisValues[firstDeepValley]
-            let recoveryThreshold = valleyFloor + totalRange * 0.10
+            let recoveryThreshold = startRoll - totalRange * 0.10
             let firstRecovery = peaks.first { p in
                 p > firstDeepValley && axisValues[p] > recoveryThreshold
             }
@@ -348,17 +348,19 @@ func splitReps(
     var merged: [Repetition] = [result[0]]
 
     for rep in result.dropFirst() {
-        var prev = merged[merged.count - 1]
+        let prev = merged[merged.count - 1]
         let tGap = rep.samples[0].t - prev.samples[prev.samples.count - 1].t
         let rollGap = abs(rep.samples[0].roll - prev.samples[prev.samples.count - 1].roll)
 
         if tGap <= timeGapThreshold && rollGap <= rollGapThreshold {
             let boundaryRoll = 0.5 * (prev.samples[prev.samples.count - 1].roll + rep.samples[0].roll)
-            if abs(boundaryRoll) < rollCenterThreshold {
+
+            if boundaryRoll > -rollCenterThreshold {
                 merged.append(rep)
                 continue
             }
 
+            // Boundary is deep in the valley — stitch the two fragments together.
             merged[merged.count - 1] = Repetition(
                 samples: prev.samples + rep.samples,
                 rangeOfMotion: prev.rangeOfMotion,
@@ -376,6 +378,21 @@ func splitReps(
     merged = merged.filter { r in
         let minRoll = r.samples.map(\.roll).min() ?? r.samples[0].roll
         return (r.samples[0].roll - minRoll) >= minRepDepth
+    }
+
+    if merged.isEmpty {
+        return [repetition]
+    }
+
+    let noiseGapThreshold   = 3.0   // seconds
+    let noiseDriftThreshold = 0.40  // radians
+    for idx in 1..<merged.count {
+        let gap   = merged[idx].samples[0].t - merged[idx - 1].samples[merged[idx - 1].samples.count - 1].t
+        let drift = abs(merged[idx].samples[merged[idx].samples.count - 1].roll - merged[idx].samples[0].roll)
+        if gap > noiseGapThreshold && drift > noiseDriftThreshold {
+            merged = Array(merged[..<idx])
+            break
+        }
     }
 
     if merged.isEmpty {
@@ -512,10 +529,10 @@ func eccentricTime(rep: Repetition) -> Double {
 }
 
 func eccentricScore(duration: Double) -> EccentricScore {
-    if duration >= 3.0 {
+    if duration >= 2.0 {
         return .good
     }
-    if duration >= 2.0 {
+    if duration >= 1.0 {
         return .slightlyFast
     }
     return .tooFast
