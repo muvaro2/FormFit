@@ -7,6 +7,8 @@ matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 from torch.utils.data import Dataset, DataLoader, random_split
 from sklearn.preprocessing import StandardScaler
+import glob
+import os
 
 
 class ConvNet1D(nn.Module):
@@ -48,23 +50,103 @@ class ExerciseDataset(Dataset):
     def __getitem__(self,i):
         return self.x[i],self.y[i]
 
-def load_data(csv_path,seq_len=128):
-    df = pd.read_csv(csv_path)
+def load_data(data_folder, labels_csv, seq_len=128):
+    sensor_cols = ['ax','ay','az','gx','gy','gz','roll','pitch','yaw']
 
-    sensor_cols = ['acc_x','acc_y','acc_z','gyro_x','gyro_y','gyro_z','roll','pitch','yaw']
-    label_cols = ['elbow_stability','scapular_hiking','trunk_compensation']
+    # Load labels csv
+    labels_df = pd.read_csv(labels_csv)
+    labels_df.columns = labels_df.columns.str.strip()
+    labels_df = labels_df.dropna(subset=['Filename']) #drop rows with empty filenames
 
-    scaler = StandardScaler()
-    df[sensor_cols] = scaler.fit_transform(df[sensor_cols])
+    labels_df['Rep number'] = labels_df['Rep number'].astype(int)
 
-    x,y = [],[]
-    step = seq_len // 2
-    for start in range(0,len(df) - seq_len, step):
-        window = df[sensor_cols].iloc[start:start+seq_len].values
-        x.append(window.T)
-        y.append(df[label_cols].iloc[start].values)
+    labels_df['Filename'] = labels_df['Filename'].apply(
+        lambda f: os.path.splitext(os.path.basename(str(f).strip()))[0]
+    )
+
+    #appends each set to a vector to track rep number
+    session_reps = {}
+    for _, row in labels_df.iterrows():
+        session = row['Filename']
+        if session not in session_reps:
+            session_reps[session] = []
+        session_reps[session].append(row)
     
-    return np.array(x,dtype=np.float32), np.array(y, dtype=np.float32)
+    print("Label filenames sample:", labels_df['Filename'].head().tolist())
+    print("Label rep numbers sample:", labels_df['Rep number'].head().tolist())  
+
+    # Searches for the csvs recursively inside subfolders
+    csv_files = sorted(glob.glob(os.path.join(data_folder, '**', '*.csv'), recursive=True))
+    if not csv_files:
+        raise FileNotFoundError(f"No CSV files found under {data_folder}")
+    print(f"Found {len(csv_files)} rep CSV files")
+
+    all_X, all_y = [], []
+
+    for csv_path in csv_files:
+        file_stem = os.path.splitext(os.path.basename(csv_path))[0] #file name
+
+        if '_' not in file_stem:
+            print(f"  Skipping {file_stem} — no rep index in filename")
+            continue
+
+        session_name, rep_idx_str = file_stem.rsplit('_', 1)
+        try:
+            rep_idx = int(rep_idx_str)
+        except ValueError:
+            print(f"  Skipping {file_stem} — rep index not a number")
+            continue
+
+        # Matches file name to labels csv
+        if session_name not in session_reps:
+            print(f"No label for session {session_name}, skipping")
+            continue
+
+        reps_for_session = session_reps[session_name]
+        if rep_idx >= len(reps_for_session):
+            print(f"Rep index {rep_idx} out of range in {session_name}, skipping")
+            continue
+
+        label_row = reps_for_session[rep_idx]
+        df = pd.read_csv(csv_path)
+
+        # Ignore time column
+        if 't' in df.columns:
+            df = df.drop(columns=['t'])
+
+        #verifies the csv file matches the number of columns
+        if not all(c in df.columns for c in sensor_cols):
+            print(f"  Missing sensor columns in {file_stem}, skipping")
+            continue
+
+        # Normalizes the sensor values
+        scaler = StandardScaler()
+        sensor_data = scaler.fit_transform(df[sensor_cols].values)
+
+        if len(sensor_data) < seq_len: #pads data if too short
+            pad_len = seq_len - len(sensor_data)
+            sensor_data = np.pad(sensor_data, ((0, pad_len), (0, 0)))
+            all_X.append(sensor_data.T)
+            all_y.append(np.array([
+                float(label_row['elbow_hiking']),
+                float(label_row['shoulder_hiking']),
+                float(label_row['torso_twist']),
+            ], dtype=np.float32))
+        else: #extracts a window of data if too long
+            step = seq_len // 2
+            for start in range(0, len(sensor_data) - seq_len, step):
+                all_X.append(sensor_data[start:start + seq_len].T)
+                all_y.append(np.array([
+                    float(label_row['elbow_hiking']),
+                    float(label_row['shoulder_hiking']),
+                    float(label_row['torso_twist']),
+                ], dtype=np.float32))
+
+    if not all_X:
+        raise ValueError("No labeled windows found — check filenames match between data folder and labels CSV")
+
+    print(f"Total windows: {len(all_X)}")
+    return np.array(all_X, dtype=np.float32), np.array(all_y, dtype=np.float32)
 
 def build_loaders(x,y,batch_size=32,train_split=0.8):
     dataset = ExerciseDataset(x,y)
@@ -126,11 +208,11 @@ def train(model, train_loader, val_loader, epochs=50):
     return history
 
 #gives feedback when the user is over the threshold
-THRESHOLDS = {
-    'elbow_stability': (0.5, "Elbow drifting"),
-    'scapular_hiking': (0.5, "Shoulder shrugging"),
-    'trunk_compensation': (0.5, "Trunk leaning"),
-}
+# THRESHOLDS = {
+#     'elbow_stability': (0.5, "Elbow drifting"),
+#     'scapular_hiking': (0.5, "Shoulder shrugging"),
+#     'trunk_compensation': (0.5, "Trunk leaning"),
+# }
 
 LENIENCY = 1.0 #Leniency factor - increase it to make grading easier
 
@@ -150,7 +232,7 @@ def get_feedback(model, x_sample, eccentric_time, rom_deg, concentric_time, leni
         x = torch.tensor(x_sample, dtype=torch.float32).unsqueeze(0) #converts x_sample to a tensor data structure
         preds = model(x).squeeze().numpy() #runs prediction model
     
-    metric_names = ['elbow_stability', 'scapular_hiking','trunk_compensation']
+    metric_names = ['elbow_hiking', 'shoulder_hiking','torso_twist']
 
     #converts outputs to likelihood %
     curved = [curve_cnn_score(p,leniency) for p in preds]
@@ -165,8 +247,8 @@ def get_feedback(model, x_sample, eccentric_time, rom_deg, concentric_time, leni
     overall_score = sum(metric_contributions) + ecc_contribution
 
     metrics = []
-    thresholds = {'elbow_stability': 50, 'scapular_hiking': 50, 'trunk_compensation':50}
-    feedback_messages = {'elbow_stability': 'Elbow hiking detected', 'scapular_hiking': 'Scapular hiking detected', 'trunk_compensation': 'Torse twisting detected'}
+    thresholds = {'elbow_hiking': 50, 'shoulder_hiking': 50, 'torso_twist':50}
+    feedback_messages = {'elbow_hiking': 'Elbow hiking detected', 'shoulder_hiking': 'Shoulder hiking detected', 'torso_twist': 'Torso twisting detected'}
 
     for name, likelihood, contribution in zip(metric_names, likelihoods, metric_contributions):
         flagged = likelihood > thresholds[name]
@@ -234,17 +316,6 @@ def evaluate(model, val_loader): #takes in model and validation dataset
         acc = (all_predictions[:,i] == all_labels[:,i]).float().mean().item()
         print(f"{label:25s}:{acc*100:.1f}%")
 
-#makes test data
-def make_test_csv(path, n_rows=500):
-    df = pd.DataFrame(
-        np.random.randn(n_rows,9),
-        columns=['acc_x','acc_y','acc_z','gyro_x','gyro_y','gyro_z','roll','pitch','yaw']
-    )
-    df['elbow_stability'] = np.random.randint(0,2,n_rows)
-    df['scapular_hiking'] = np.random.randint(0,2,n_rows)
-    df['trunk_compensation'] = np.random.randint(0,2,n_rows)
-    df.to_csv(path,index=False)
-
 #exports model to CoreML
 def export_coreml(model,seq_len=128,output_path="FormFitModel.mlpackage"):
     try:
@@ -272,14 +343,13 @@ def export_coreml(model,seq_len=128,output_path="FormFitModel.mlpackage"):
 
 
 if __name__ == "__main__":
-    CSV_PATH = 'exercise_data.csv'
+    DATA_FOLDER = r'C:\FormFit\FormFit\formfit-data'
+    LABELS_PATH = r'C:\FormFit\FormFit\formfit-labels.csv'
     SEQ_LEN = 128
     EPOCHS = 50
 
-    make_test_csv(CSV_PATH)
-
     #load data
-    x,y = load_data(CSV_PATH,seq_len = SEQ_LEN)
+    x,y = load_data(DATA_FOLDER, LABELS_PATH,seq_len = SEQ_LEN)
     train_loader,val_loader,dataset = build_loaders(x,y,batch_size=32)
 
     #Train model
