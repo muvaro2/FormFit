@@ -1,14 +1,20 @@
+import os
+import tempfile
+
+MPL_CONFIG_DIR = os.path.join(tempfile.gettempdir(), "formfit-matplotlib")
+os.makedirs(MPL_CONFIG_DIR, exist_ok=True)
+os.environ.setdefault("MPLCONFIGDIR", MPL_CONFIG_DIR)
+
 import pandas as pd
 import numpy as np
 import torch
 import torch.nn as nn
 import matplotlib
-matplotlib.use('TkAgg')
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from torch.utils.data import Dataset, DataLoader, random_split
 from sklearn.preprocessing import StandardScaler
 import glob
-import os
 
 
 class ConvNet1D(nn.Module):
@@ -161,7 +167,7 @@ def build_loaders(x,y,batch_size=32,train_split=0.8):
     return train_loader, val_loader, dataset
 
 #training loop function
-def train(model, train_loader, val_loader, epochs=50):
+def train(model, train_loader, val_loader, epochs=50, model_path="best_model.pth"):
     criterion = nn.BCELoss() #measures how wrong the predictions are
     optimizer = torch.optim.Adam(model.parameters(), lr=1e-3, weight_decay=1e-4) #updates the model's numbers after each run
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
@@ -201,7 +207,7 @@ def train(model, train_loader, val_loader, epochs=50):
         # Saves the best model
         if avg_val < best_val_loss:
             best_val_loss = avg_val
-            torch.save(model.state_dict(), 'best_model.pth')
+            torch.save(model.state_dict(), model_path)
 
         print(f"Epoch {epoch+1:3d} | Train: {avg_train:.4f} | Val: {avg_val:.4f}")
 
@@ -283,7 +289,7 @@ def print_feedback(result):
 
     print(f"\n Overall Score: {result['overall_score']}/100")
 
-def plot_history(history):
+def plot_history(history, output_path="training_history.png"):
     plt.figure(figsize=(8, 4))
     plt.plot(history['train'],label='Train Loss')
     plt.plot(history['val'],label='Val Loss')
@@ -292,7 +298,9 @@ def plot_history(history):
     plt.title('Training History')
     plt.legend()
     plt.tight_layout()
-    plt.show()
+    plt.savefig(output_path, dpi=200)
+    plt.close()
+    print(f"Training plot saved to: {output_path}")
 
 #evaluation function
 def evaluate(model, val_loader): #takes in model and validation dataset
@@ -335,16 +343,20 @@ def export_coreml(model,seq_len=128,output_path="FormFitModel.mlpackage"):
     )
 
     coreml_model.short_description = "Feedback: elbow stability, scapular hiking, trunk compensation"
-    coreml_model.input_description = "9-channel sensors (acc xyz, gyro xyz, roll/pitch/yaw), shape(1,9,seq_len)"
-    coreml_model.output_description = "3 scores for elbow stability, scapular hiking, trunk compensation"
+    coreml_model.input_description["input"] = "9-channel sensors (acc xyz, gyro xyz, roll/pitch/yaw), shape (1, 9, seq_len)"
+    coreml_model.output_description["output"] = "3 scores for elbow stability, scapular hiking, trunk compensation"
 
     coreml_model.save(output_path)
     print(f"Export path: {output_path}")
 
 
 if __name__ == "__main__":
-    DATA_FOLDER = r'C:\FormFit\FormFit\formfit-data'
-    LABELS_PATH = r'C:\FormFit\FormFit\formfit-labels.csv'
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    DATA_FOLDER = os.path.join(BASE_DIR, "formfit-data")
+    LABELS_PATH = os.path.join(BASE_DIR, "formfit-labels.csv")
+    MODEL_PATH = os.path.join(BASE_DIR, "best_model.pth")
+    HISTORY_PLOT_PATH = os.path.join(BASE_DIR, "training_history.png")
+    COREML_OUTPUT_PATH = os.path.join(BASE_DIR, "FormFitModel.mlpackage")
     SEQ_LEN = 128
     EPOCHS = 50
 
@@ -354,11 +366,11 @@ if __name__ == "__main__":
 
     #Train model
     model = ConvNet1D()
-    history = train(model,train_loader,val_loader,epochs=EPOCHS)
-    plot_history(history)
+    history = train(model,train_loader,val_loader,epochs=EPOCHS, model_path=MODEL_PATH)
+    plot_history(history, output_path=HISTORY_PLOT_PATH)
 
     #Loads best model and evaluates
-    model.load_state_dict(torch.load('best_model.pth'))
+    model.load_state_dict(torch.load(MODEL_PATH))
     evaluate(model,val_loader)
 
     #Obtain feedback
@@ -368,4 +380,4 @@ if __name__ == "__main__":
     print_feedback(feedback)
 
     #export to CoreML
-    # export_coreml(model,seq_len=SEQ_LEN)
+    export_coreml(model, seq_len=SEQ_LEN, output_path=COREML_OUTPUT_PATH)
