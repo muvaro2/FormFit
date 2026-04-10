@@ -414,8 +414,11 @@ private struct RepetitionInsightCard: View {
                     .padding(.vertical, 2)
 
                 insightRow(title: "Elbow", value: repetition.elbowHikingScore)
+                rawInsightRow(title: "Elbow raw", value: repetition.elbowHikingScore)
                 insightRow(title: "Shoulder", value: repetition.shoulderHikingScore)
+                rawInsightRow(title: "Shoulder raw", value: repetition.shoulderHikingScore)
                 insightRow(title: "Torso", value: repetition.torsoTwistScore)
+                rawInsightRow(title: "Torso raw", value: repetition.torsoTwistScore)
             }
         }
         .frame(width: 170, alignment: .leading)
@@ -451,6 +454,25 @@ private struct RepetitionInsightCard: View {
         guard let value else { return "--" }
         let subscore = max(1, min(100, Int(((1.0 - value) * 100.0).rounded())))
         return "\(subscore)/100"
+    }
+
+    private func rawInsightRow(title: String, value: Double?) -> some View {
+        HStack {
+            Text(title)
+                .font(.caption2)
+                .foregroundStyle(FormFitTheme.textSecondary)
+
+            Spacer(minLength: 8)
+
+            Text(formattedRawScore(value))
+                .font(.caption2.monospacedDigit())
+                .foregroundStyle(FormFitTheme.textSecondary)
+        }
+    }
+
+    private func formattedRawScore(_ value: Double?) -> String {
+        guard let value else { return "--" }
+        return String(format: "%.3f", value)
     }
 
     private func issueColor(for value: Double?) -> Color {

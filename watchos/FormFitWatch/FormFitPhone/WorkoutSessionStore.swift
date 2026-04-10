@@ -297,6 +297,13 @@ enum WorkoutSessionImporter {
 
         session.repetitions = repetitions.enumerated().map { index, repetition in
             let repInference = inference?.rep[safe: index]
+            print(
+                "Saving rep \(index + 1) -> " +
+                "elbow: \(String(format: "%.4f", repInference?.elbowHiking ?? -1)), " +
+                "shoulder: \(String(format: "%.4f", repInference?.shoulderHiking ?? -1)), " +
+                "torso: \(String(format: "%.4f", repInference?.torsoTwist ?? -1)), " +
+                "overall: \(String(format: "%.2f", repInference?.overallScore ?? -1))"
+            )
             let storedRepetition = WorkoutRepetition(
                 index: index,
                 rangeOfMotion: repetition.rangeOfMotion,

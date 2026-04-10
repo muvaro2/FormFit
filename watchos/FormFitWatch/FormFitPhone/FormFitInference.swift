@@ -118,6 +118,13 @@ final class FormFitInference {
         let shoulder = clamp01(avg[1])
         let torso = clamp01(avg[2])
 
+        print(
+            "FormFitInference rep raw -> " +
+            "elbow: \(String(format: "%.4f", elbow)), " +
+            "shoulder: \(String(format: "%.4f", shoulder)), " +
+            "torso: \(String(format: "%.4f", torso))"
+        )
+
         // 3. Combine with eccentric time into 0-100 overall score.
         //    Mirrors CNN.py get_feedback: 25 pts per metric + 25 pts for ecc time.
         let eccSeconds = rep.eccentricTime ?? 0
