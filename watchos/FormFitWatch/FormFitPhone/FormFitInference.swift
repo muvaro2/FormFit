@@ -53,7 +53,7 @@ final class FormFitInference {
         loadAttempted = true
 
         let config = MLModelConfiguration()
-        config.computeUnits = .all
+        config.computeUnits = .cpuAndGPU
         do {
             _model = try FormFitModel(configuration: config)
             return _model
