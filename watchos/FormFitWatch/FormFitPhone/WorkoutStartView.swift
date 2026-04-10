@@ -91,7 +91,7 @@ struct WorkoutStartView: View {
                     .foregroundStyle(FormFitTheme.textPrimary)
             }
         }
-        .sheet(isPresented: $showWorkoutSummary) {
+        .sheet(isPresented: $showWorkoutSummary, onDismiss: resetAfterSummary) {
             WorkoutView()
         }
         .onAppear {
@@ -159,7 +159,7 @@ struct WorkoutStartView: View {
                 heroContent(icon: "waveform.path.ecg", label: "Collecting", tint: FormFitTheme.danger)
             case .saving:
                 VStack(spacing: 10) {
-                    ProgressView()
+                    SwiftUI.ProgressView()
                         .progressViewStyle(.circular)
                         .tint(FormFitTheme.orange)
                         .scaleEffect(1.4)
@@ -285,7 +285,9 @@ struct WorkoutStartView: View {
     private func startCountdown() {
         guard remoteControlAvailable else { return }
 
-        importMarker = connectivity.lastImportedFilename
+        importMarker = nil
+        showWorkoutSummary = false
+        isAwaitingResults = false
         countdown = 5
         isCountdownActive = true
         countdownTask?.cancel()
@@ -323,6 +325,12 @@ struct WorkoutStartView: View {
         connectivity.sendCollectorCommand("stop")
         // PhoneConnectivityManager will detect the collecting → stopped
         // transition and automatically send the save command.
+    }
+
+    private func resetAfterSummary() {
+        showWorkoutSummary = false
+        importMarker = nil
+        isAwaitingResults = false
     }
 }
 
